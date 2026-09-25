@@ -1,0 +1,134 @@
+{
+  "seo": {
+    "title": "Furkan Baytekin | The Open Sourcerer - Fullstack Developer",
+    "description": "Software developer & open sourcerer. builds systems from architecture to production, modular monoliths, multitenant platforms on minimal infrastructure.",
+    "canonical": "https://furkanbaytekin.dev/"
+  },
+  "person": {},
+  "sections": [
+    {
+      "type": "hero",
+      "data": {
+        "avatar": {
+          "src": "https://furkanbaytekin.dev/android-chrome-512x512.png",
+          "alt": "Furkan Baytekin",
+          "width": 256,
+          "height": 256
+        },
+        "name": "Furkan Baytekin",
+        "titles": [
+          {
+            "label": "Fullstack Developer",
+            "icon": "code"
+          },
+          {
+            "label": "Open Sourcerer",
+            "icon": "brand-open-source"
+          },
+          {
+            "label": "Game Developer",
+            "icon": "device-gamepad-2"
+          },
+          {
+            "label": "Vibe Musician",
+            "icon": "music"
+          }
+        ],
+        "bio": "I'm a Software Developer who has an educational background, so I can teach you how to code. I also describe myself as an open sourcerer. I play the bass guitar and keen on reading books. I obsessed with vinyl records and retro stuff (to get away from the software for a bit).",
+        "actions": [
+          {
+            "label": "Read the Blog",
+            "href": "/blogs",
+            "variant": "primary"
+          },
+          {
+            "label": "Get in Touch",
+            "href": "mailto:furkan@baytekin.dev",
+            "variant": "ghost"
+          }
+        ],
+        "socials": [
+          {
+            "label": "GitHub",
+            "href": "https://github.com/Elagoht"
+          },
+          {
+            "label": "LinkedIn",
+            "href": "https://linkedin.com/in/furkan-baytekin"
+          },
+          {
+            "label": "YouTube",
+            "href": "https://youtube.com/@furkanbytekin"
+          },
+          {
+            "label": "X",
+            "href": "https://x.com/furkanbytekin"
+          }
+        ]
+      }
+    },
+    {
+      "type": "separator"
+    },
+    {
+      "type": "hobbies",
+      "data": {
+        "label": "Hobbies",
+        "items": [
+          {
+            "icon": "device-gamepad-2",
+            "title": "Game Jams",
+            "description": "Game jams are my way of unwinding. I compose and record soundtracks with bass and electric guitars and a MIDI keyboard — and occasionally go full solo as both dev and musician."
+          },
+          {
+            "icon": "guitar-pick",
+            "title": "Playing Electro & Bass Guitar",
+            "description": "I've been playing the bass guitar since 2017. I like to compose and play music on my own."
+          },
+          {
+            "icon": "book",
+            "title": "Reading Books",
+            "description": "I read books to get away from the software for a bit, but I always end up reading about software."
+          },
+          {
+            "icon": "player-record",
+            "title": "Collecting Vinyl Records",
+            "description": "I'm obsessed with vinyl records. I have a collection of vinyl records and the oldest one is from 1969 original pressing."
+          }
+        ]
+      }
+    },
+    {
+      "type": "separator"
+    },
+    {
+      "type": "stats",
+      "data": {
+        "items": [
+          {
+            "value": "160+",
+            "label": "Blog Posts",
+            "href": "/blogs"
+          },
+          {
+            "value": "90+",
+            "label": "YouTube Videos",
+            "href": "https://www.youtube.com/@furkanbytekin",
+            "external": true
+          },
+          {
+            "value": "16",
+            "label": "Languages",
+            "href": "/about"
+          },
+          {
+            "value": "1",
+            "label": "Udemy Course",
+            "href": "https://www.udemy.com/user/furkan-baytekin/",
+            "external": true
+          }
+        ]
+      }
+    }
+  ]
+}

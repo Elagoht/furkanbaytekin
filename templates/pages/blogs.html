@@ -1,0 +1,80 @@
+{{stylesheet "/static/blog/list.css"}}
+<main>
+  <div class="container">
+    <section class="blogs-page">
+      <h1 class="blogs-heading">{{.Labels.Heading}}</h1>
+      <p class="blogs-sub">{{.Labels.Description}}</p>
+
+      <div class="blog-filters">
+        <div class="blog-filters-row">
+          {{- if or .Categories .Tags}}
+          <details class="filter-menu">
+            <summary class="filter-modal-btn"><i class="ti ti-filter" aria-hidden="true"></i> {{.Labels.FilterLabel}}{{if or .Category .Tag}} <span class="filter-active-dot" aria-hidden="true"></span>{{end}}</summary>
+            <div class="filter-panel">
+              {{- with .Categories}}
+              <div class="filter-section">
+                <h3 class="filter-section-title">{{$.Labels.CategoriesLabel}}</h3>
+                <div class="filter-pills">
+                  {{- range .}}
+                  <a class="filter-pill{{if .Active}} active{{end}}" href="{{.URL}}"{{if .Active}} aria-current="true"{{end}}>{{.Name}} <span>{{.Count}}</span></a>
+                  {{- end}}
+                </div>
+              </div>
+              {{- end}}
+              {{- with .Tags}}
+              <div class="filter-section">
+                <h3 class="filter-section-title">{{$.Labels.TagsLabel}}</h3>
+                <div class="filter-pills">
+                  {{- range .}}
+                  <a class="filter-pill filter-pill--tag{{if .Active}} active{{end}}" href="{{.URL}}"{{if .Active}} aria-current="true"{{end}}>{{.Name}} <span>{{.Count}}</span></a>
+                  {{- end}}
+                </div>
+              </div>
+              {{- end}}
+            </div>
+          </details>
+          {{- end}}
+          <form class="blog-search" action="{{.Action}}" method="get" role="search">
+            <i class="ti ti-search search-icon" aria-hidden="true"></i>
+            <input class="search-input" type="search" name="search" value="{{.Search}}" placeholder="{{.Labels.SearchPlaceholder}}" aria-label="{{.Labels.SearchPlaceholder}}">
+            {{- with .Category}}<input type="hidden" name="category" value="{{.}}">{{end}}
+            {{- with .Tag}}<input type="hidden" name="tag" value="{{.}}">{{end}}
+          </form>
+          {{- if .Filtered}}
+          <a class="clear-filters" href="{{.Clear}}"><i class="ti ti-x" aria-hidden="true"></i> {{.Labels.ClearLabel}}</a>
+          {{- end}}
+        </div>
+      </div>
+
+      {{- if .Posts}}
+      <div class="blog-grid">
+        {{- range .Posts}}{{template "blog-card" .}}{{end}}
+      </div>
+      {{- else}}
+      <p class="blog-empty">{{.Labels.EmptyMessage}}</p>
+      {{- end}}
+
+      {{- with .Pagination}}{{if .Pages}}
+      <nav class="blog-pagination" aria-label="Pagination">
+        {{- if .Prev}}
+        <a class="pagination-link pagination-prev" href="{{.Prev}}" rel="prev"><i class="ti ti-chevron-left" aria-hidden="true"></i><span class="pagination-label">Previous</span></a>
+        {{- else}}
+        <span class="pagination-link pagination-prev disabled"><i class="ti ti-chevron-left" aria-hidden="true"></i><span class="pagination-label">Previous</span></span>
+        {{- end}}
+        <div class="pagination-pages">
+          {{- range .Pages}}
+          {{- if .Ellipsis}}<span class="pagination-ellipsis">…</span>
+          {{- else if .Current}}<span class="pagination-number current" aria-current="page">{{.Number}}</span>
+          {{- else}}<a class="pagination-number" href="{{.URL}}">{{.Number}}</a>{{end}}
+          {{- end}}
+        </div>
+        {{- if .Next}}
+        <a class="pagination-link pagination-next" href="{{.Next}}" rel="next"><span class="pagination-label">Next</span><i class="ti ti-chevron-right" aria-hidden="true"></i></a>
+        {{- else}}
+        <span class="pagination-link pagination-next disabled"><span class="pagination-label">Next</span><i class="ti ti-chevron-right" aria-hidden="true"></i></span>
+        {{- end}}
+      </nav>
+      {{- end}}{{end}}
+    </section>
+  </div>
+</main>

@@ -1,0 +1,325 @@
+// Command furkanbaytekin serves this collage application, or — when invoked with
+// -collage-build — renders it to static files instead of serving it.
+//
+// # The collage CLI contract
+//
+// "collage dev" runs `go run .` here with COLLAGE_DEV=1 set, and the variables
+// of .env.development (or .env) added, and "collage export" runs
+// `go run . -collage-build -out <dir>`. This file honours both by reading that
+// variable and those flags below. Development mode reloads templates from disk
+// on every request; it does not hot-reload Go code, so a change to any .go file
+// here still needs a restart.
+//
+// "collage build" needs nothing from this file: it compiles the program, which
+// is something go build does without being told anything.
+//
+// If you rewrite this file, keep both halves working, or "collage dev" and
+// "collage export" stop doing anything useful here.
+package main
+
+import (
+	"context"
+	"embed"
+	"flag"
+	"fmt"
+	"html/template"
+	"io/fs"
+	"log"
+	"log/slog"
+	"net/url"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"time"
+
+	jsonld "github.com/Elagoht/collage-jsonld"
+	minimizer "github.com/Elagoht/collage-minimizer"
+	optiimage "github.com/Elagoht/collage-opti-image"
+	"github.com/Elagoht/collage/pkg/collage"
+
+	"furkanbaytekin/actions"
+	"furkanbaytekin/blog"
+	"furkanbaytekin/content"
+	"furkanbaytekin/documents"
+	"furkanbaytekin/fragments/sections"
+	"furkanbaytekin/pages"
+)
+
+// Templates and static files are embedded, so this binary runs from anywhere:
+// a container with a different WORKDIR, a systemd unit, a copy on a server.
+//
+// It costs nothing in development. With DevMode on, collage prefers the
+// directory on disk whenever it is there — which it is while you are working
+// in this project — so editing a template is still visible on the next
+// request, embedded copy or not.
+//
+//go:embed all:templates
+var templatesFS embed.FS
+
+//go:embed all:static
+var staticFS embed.FS
+
+func main() {
+	// Before the flags: -port's default is read from PORT. "collage dev" reads
+	// its own environment file, and says so with COLLAGE_DEV.
+	if os.Getenv("COLLAGE_DEV") != "1" {
+		if err := loadEnvFile(".env"); err != nil {
+			log.Fatalf("furkanbaytekin: %v", err)
+		}
+	}
+
+	buildFlag := flag.Bool("collage-build", false, "render the app to static files instead of serving it")
+	outFlag := flag.String("out", "dist", "output directory for -collage-build")
+	cleanFlag := flag.Bool("clean", false, "remove -out's existing contents before building")
+	portFlag := flag.Int("port", envInt("PORT", 3000), "port to listen on (env PORT)")
+	flag.Parse()
+
+	devMode := os.Getenv("COLLAGE_DEV") == "1"
+
+	app, err := newApp(devMode, *portFlag)
+	if err != nil {
+		log.Fatalf("furkanbaytekin: %v", err)
+	}
+
+	if *buildFlag {
+		if err := staticBuild(app, *outFlag, *cleanFlag); err != nil {
+			log.Fatalf("furkanbaytekin: static build: %v", err)
+		}
+		return
+	}
+
+	if err := app.ListenAndServe(); err != nil {
+		log.Fatalf("furkanbaytekin: %v", err)
+	}
+}
+
+// newApp builds the application: its configuration, its routes, and its static
+// mount.
+//
+// It is separate from main so that the tests can build the same application
+// and drive it through app.Handler(), with no server listening and no port to
+// pick. What they exercise is then the site that actually runs, rather than a
+// second wiring that can drift from it.
+func newApp(devMode bool, port int) (*collage.App, error) {
+	// Plugin configuration, keyed by plugin name. A missing file is not an
+	// error: every plugin then runs on its defaults.
+	pluginConfig, err := collage.LoadPluginConfig("plugins-config.json")
+	if err != nil {
+		return nil, fmt.Errorf("plugin configuration: %w", err)
+	}
+
+	store := contentFiles(devMode)
+	site, err := store.Site()
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := blog.New(
+		envString("BLOG_API_URL", "https://myblogcms.furkanbaytekin.dev/api"),
+		os.Getenv("BLOG_TRUSTED_FRONTEND_KEY"),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// opti-image fetches from this site and from the CMS, and from nowhere
+	// else. Both are named where they are configured already, so the list
+	// cannot drift from them; plugins-config.json holds the rest.
+	origins, err := imageOrigins(site.URL, client.Origin())
+	if err != nil {
+		return nil, err
+	}
+
+	// Rendered pages and produced images live under one directory, so one
+	// setting moves or isolates both.
+	cacheDir := envString("CACHE_DIR", ".cache")
+
+	app, err := collage.New(&collage.Config{
+		DevMode: devMode,
+		Server: collage.ServerConfig{
+			Host: envString("HOST", "localhost"),
+			Port: port,
+		},
+		Template: collage.TemplateConfig{
+			FS:        templatesFS,
+			Root:      "templates",
+			Extension: ".html",
+			Funcs:     template.FuncMap{"emphasis": sections.Emphasis},
+		},
+		Cache: collage.CacheConfig{
+			// In development collage never reads from the cache — a cached
+			// page would hide the template you just edited — and uses memory
+			// instead of disk. In production rendered pages are kept under
+			// .cache, namespaced by a hash of this binary.
+			Enabled:    true,
+			Type:       "disk",
+			Dir:        cacheDir,
+			DefaultTTL: 5 * time.Minute,
+		},
+		PluginConfig: pluginConfig,
+		// Their settings are in plugins-config.json. opti-image and minimizer
+		// have to be here rather than registered later: they mount filesystems
+		// while the application is built. jsonld reaches the document head
+		// through {{hoist "head"}} in the layout.
+		Plugins: []collage.Plugin{
+			optiimage.NewWith(optiimage.Config{
+				AllowedOrigins: origins,
+				CacheDir:       filepath.Join(cacheDir, "opti-image"),
+			}),
+			jsonld.New(),
+			minimizer.New(),
+		},
+		Security: collage.SecurityConfig{
+			// Signs the forgery tokens forms carry. Unset, one is generated
+			// per process: fine in development, wrong to deploy, because every
+			// form submitted before a restart is refused after it. Make one
+			// with `openssl rand -hex 32`.
+			CSRFKey: []byte(os.Getenv("COLLAGE_CSRF_KEY")),
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	posts := &pages.Blog{Store: store, Client: client, Renderer: blog.NewRenderer(client)}
+
+	listed := []documents.SitePage{{Name: "Home", Path: "/"}, {Name: "About", Path: "/about"}}
+	for i, page := range listed {
+		name := strings.ToLower(page.Name)
+		doc, err := store.Page(name)
+		if err != nil {
+			return nil, err
+		}
+		listed[i].Description = doc.SEO.Description
+	}
+	blogWords, err := store.Blog()
+	if err != nil {
+		return nil, err
+	}
+	listed = append(listed, documents.SitePage{Name: "Blog", Path: "/blogs", Description: blogWords.List.Description})
+	discovery := &documents.Discovery{Store: store, Client: client, Pages: listed}
+
+	for name, path := range map[string]string{"home": "/", "about": "/about"} {
+		page, err := pages.SectionPage(store, name, path)
+		if err != nil {
+			return nil, fmt.Errorf("page %q: %w", name, err)
+		}
+		if err := app.RegisterPage(page); err != nil {
+			return nil, fmt.Errorf("register page %q: %w", name, err)
+		}
+	}
+	for _, page := range []*collage.Page{posts.BlogsPage(), posts.SearchPage(), posts.PostPage()} {
+		if err := app.RegisterPage(page); err != nil {
+			return nil, fmt.Errorf("register page %q: %w", page.Name, err)
+		}
+	}
+	for _, action := range []*collage.Action{
+		actions.ViewAction(client),
+		actions.WebhookAction(os.Getenv("WEBHOOK_SECRET"), slog.Default()),
+	} {
+		if err := app.RegisterAction(action); err != nil {
+			return nil, fmt.Errorf("register action %q: %w", action.Name, err)
+		}
+	}
+	for _, document := range append(discovery.Documents(), documents.HealthDocument(), documents.FeedDocument(store, client)) {
+		if err := app.RegisterDocument(document); err != nil {
+			return nil, fmt.Errorf("register document %q: %w", document.Name, err)
+		}
+	}
+	// Registered rather than given a path: it is reached by failing to match.
+	// "collage export" writes it as 404.html.
+	if err := app.RegisterNotFoundPage(pages.NotFoundPage(store)); err != nil {
+		return nil, fmt.Errorf("register not-found page: %w", err)
+	}
+
+	assets, err := staticFiles(devMode)
+	if err != nil {
+		return nil, err
+	}
+	if err := app.Mount("/static/", assets); err != nil {
+		return nil, fmt.Errorf("mount static files: %w", err)
+	}
+
+	return app, nil
+}
+
+// staticFiles returns the filesystem "/static/" is served from: the embedded
+// copy, except in development, where the directory on disk wins so an edited
+// stylesheet shows up without a rebuild.
+//
+// os.OpenRoot rather than os.DirFS: os.DirFS follows a symlink out of the
+// directory, and an os.Root does not.
+func staticFiles(devMode bool) (fs.FS, error) {
+	if devMode {
+		if root, err := os.OpenRoot("static"); err == nil {
+			return root.FS(), nil
+		}
+	}
+
+	// fs.Sub, because the embedded tree contains the "static" directory
+	// itself: mounting it whole would serve "/static/static/app.css".
+	return fs.Sub(staticFS, "static")
+}
+
+// imageOrigins is the scheme and host of each of urls.
+func imageOrigins(urls ...string) ([]optiimage.Origin, error) {
+	origins := make([]optiimage.Origin, 0, len(urls))
+	for _, raw := range urls {
+		u, err := url.Parse(raw)
+		if err != nil || u.Host == "" {
+			return nil, fmt.Errorf("image origin %q is not an absolute URL", raw)
+		}
+		origins = append(origins, optiimage.Origin{Scheme: u.Scheme, Host: u.Host})
+	}
+	return origins, nil
+}
+
+// contentFiles returns the store the pages read their JSON from: the embedded
+// copy, except in development, where the directory on disk wins so an edited
+// file shows up on the next request, as a template does.
+func contentFiles(devMode bool) *content.Store {
+	if devMode {
+		if root, err := os.OpenRoot("content"); err == nil {
+			return content.NewStore(root.FS())
+		}
+	}
+	return content.NewStore(content.Embedded())
+}
+
+// envString returns the environment variable named key, or fallback.
+func envString(key, fallback string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return fallback
+}
+
+// envInt is envString for a number. An unparseable value falls back rather than
+// failing: a port is not worth refusing to start over.
+func envInt(key string, fallback int) int {
+	value, err := strconv.Atoi(os.Getenv(key))
+	if err != nil {
+		return fallback
+	}
+	return value
+}
+
+// staticBuild renders every statically-buildable page to files under outDir
+// through collage's own builder, and prints what was written, skipped and
+// failed.
+func staticBuild(app *collage.App, outDir string, clean bool) error {
+	builder, err := collage.NewBuilder(app, collage.BuildOptions{
+		OutDir: outDir,
+		Clean:  clean,
+	})
+	if err != nil {
+		return err
+	}
+
+	report, buildErr := builder.Build(context.Background())
+
+	collage.PrintBuildReport(os.Stdout, report, buildErr)
+
+	return buildErr
+}

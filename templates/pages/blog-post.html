@@ -1,0 +1,49 @@
+{{stylesheet "/static/blog/post.css"}}
+{{stylesheet "/static/blog/list.css"}}
+<script src="{{asset "/static/blog/post.js"}}" defer></script>
+<main>
+  <div class="container">
+    <div class="blog-post-layout">
+      <article class="blog-post" data-slug="{{.Slug}}">
+        {{- with .Cover}}{{if .Src}}
+        <figure class="blog-post-cover"><img src="{{.Src}}" alt="{{.Alt}}" width="{{.Width}}" height="{{.Height}}" fetchpriority="high"></figure>
+        {{- end}}{{end}}
+        <header class="blog-post-header">
+          <div class="blog-post-meta">
+            {{- with .Category}}<span class="blog-post-category">{{.}}</span>{{end}}
+            <time class="blog-post-date" datetime="{{.DateISO}}"><i class="ti ti-calendar" aria-hidden="true"></i> {{.Date}}</time>
+            {{- if .ReadTime}}<span class="blog-post-read-time"><i class="ti ti-clock" aria-hidden="true"></i> {{.ReadTime}} min read</span>{{end}}
+            <span class="blog-post-views"><i class="ti ti-eye" aria-hidden="true"></i> <span class="views-count" data-views="{{.Views}}">{{.Views}}</span> views</span>
+          </div>
+          <h1 class="blog-post-title">{{.Title}}</h1>
+          {{- with .Excerpt}}<p class="blog-post-excerpt">{{.}}</p>{{end}}
+        </header>
+        {{- with .Audio}}
+        <section class="blog-post-audio">
+          <h2 class="blog-post-audio-title">{{$.Labels.AudioLabel}}</h2>
+          <audio class="blog-post-audio-player" controls preload="none" src="{{.}}"></audio>
+        </section>
+        {{- end}}
+        <div class="blog-post-content">{{.Content}}</div>
+      </article>
+      {{- with .Headings}}
+      <nav class="toc" aria-label="{{$.Labels.TOCLabel}}">
+        <h2 class="toc-title">{{$.Labels.TOCLabel}}</h2>
+        <ul class="toc-list">
+          {{- range .}}
+          <li class="toc-item toc-item--level-{{.Level}}"><a class="toc-link" href="#{{.ID}}">{{.Text}}</a></li>
+          {{- end}}
+        </ul>
+      </nav>
+      {{- end}}
+    </div>
+    {{- with .Related}}
+    <section class="related-posts">
+      <h2 class="related-posts-title">{{$.Labels.RelatedLabel}}</h2>
+      <div class="blog-grid">
+        {{- range .}}{{template "blog-card" .}}{{end}}
+      </div>
+    </section>
+    {{- end}}
+  </div>
+</main>

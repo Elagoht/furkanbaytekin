@@ -1,0 +1,17 @@
+{{stylesheet "/static/sections/education.css"}}
+<div class="container">
+  <section class="education">
+    <p class="section-label">{{.Label}}</p>
+    <div class="education-grid">
+      {{- range .Items}}
+      <div class="education-card">
+        <div class="education-info">
+          <h3 class="education-university">{{.School}}</h3>
+          <p class="education-programme">{{.Programme}}</p>
+        </div>
+        <span class="education-date">{{.Date}}</span>
+      </div>
+      {{- end}}
+    </div>
+  </section>
+</div>

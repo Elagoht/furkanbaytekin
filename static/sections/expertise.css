@@ -1,0 +1,35 @@
+.expertise {
+  padding: 3.5rem 0;
+}
+
+.expertise-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  list-style: none;
+}
+
+.expertise-item {
+  padding: 0.85rem 1.25rem;
+  border: 0.0625rem solid var(--border);
+  border-radius: 0.625rem;
+  background: var(--bg-card);
+  color: var(--fg-secondary);
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: default;
+  transition: all 0.2s;
+}
+
+.expertise-item:hover {
+  border-color: var(--green-dim);
+  background: var(--bg-card-hover);
+  color: var(--fg);
+  box-shadow: 0 0 1.25rem var(--green-glow);
+}
+
+@media (max-width: 43.75rem) {
+  .expertise-grid {
+    grid-template-columns: 1fr;
+  }
+}

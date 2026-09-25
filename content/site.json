@@ -1,0 +1,61 @@
+{
+  "name": "Furkan Baytekin",
+  "url": "https://furkanbaytekin.dev",
+  "title": "Furkan Baytekin",
+  "description": "Software developer & open sourcerer. builds systems from architecture to production, modular monoliths, multitenant platforms on minimal infrastructure.",
+  "person": {
+    "name": "Furkan Baytekin",
+    "email": "furkan@baytekin.dev",
+    "jobTitle": "Lead Product Developer",
+    "image": "https://furkanbaytekin.dev/android-chrome-512x512.png",
+    "sameAs": [
+      "https://github.com/Elagoht",
+      "https://linkedin.com/in/furkan-baytekin",
+      "https://youtube.com/@furkanbytekin",
+      "https://x.com/furkanbytekin"
+    ]
+  },
+  "nav": [
+    { "label": "About", "icon": "user", "href": "/about" },
+    { "label": "Blogs", "icon": "article", "href": "/blogs" }
+  ],
+  "footer": {
+    "groups": [
+      {
+        "title": "Direct Message",
+        "links": [
+          { "label": "Telegram", "href": "https://t.me/furkanbytekin" },
+          { "label": "Send Email", "href": "mailto:furkan@baytekin.dev" },
+          { "label": "LinkedIn", "href": "https://linkedin.com/in/furkan-baytekin" }
+        ]
+      },
+      {
+        "title": "Social Media",
+        "links": [
+          { "label": "X", "href": "https://x.com/furkanbytekin" },
+          { "label": "Reddit", "href": "https://reddit.com/u/furkanbytekin" },
+          { "label": "Spotify", "href": "https://open.spotify.com/user/furkanbytekin" }
+        ]
+      },
+      {
+        "title": "My Productive Hours",
+        "links": [
+          { "label": "YouTube", "href": "https://youtube.com/@furkanbytekin" },
+          { "label": "GitHub", "href": "https://github.com/Elagoht" },
+          { "label": "RSS", "href": "/rss" }
+        ]
+      }
+    ],
+    "copyright": "Copyleft © {year} All Wrongs Reversed"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "code": "404",
+    "heading": "Page not found",
+    "message": "The page you're looking for doesn't exist or has been moved.",
+    "actions": [
+      { "label": "Back to Home", "href": "/", "variant": "primary" },
+      { "label": "Blogs", "href": "/blogs", "variant": "ghost" }
+    ]
+  }
+}

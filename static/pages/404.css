@@ -1,0 +1,57 @@
+.error-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 4rem 2rem;
+}
+
+.error-container {
+  max-width: 30rem;
+  text-align: center;
+}
+
+.error-code {
+  color: var(--fg);
+  font-size: 8rem;
+  font-weight: 800;
+  letter-spacing: -0.25rem;
+  line-height: 1;
+  opacity: 0.45;
+}
+
+.error-divider {
+  height: 0.125rem;
+  margin: 1.5rem auto;
+  border-radius: 0.0625rem;
+  background: var(--green);
+}
+
+.error-title {
+  margin-bottom: 0.5rem;
+  color: var(--fg);
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.error-message {
+  margin-bottom: 2rem;
+  color: var(--fg-secondary);
+  font-size: 0.92rem;
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+.error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+@media (max-width: 43.75rem) {
+  .error-code {
+    font-size: 5.5rem;
+    letter-spacing: -0.125rem;
+  }
+}

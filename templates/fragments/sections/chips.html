@@ -1,0 +1,11 @@
+{{stylesheet "/static/sections/chips.css"}}
+<div class="container">
+  <section class="languages">
+    <p class="section-label">{{.Label}}</p>
+    <div class="lang-row">
+      {{- range .Items}}
+      <span class="lang-chip">{{.}}</span>
+      {{- end}}
+    </div>
+  </section>
+</div>

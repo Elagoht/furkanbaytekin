@@ -1,0 +1,177 @@
+{
+  "seo": {
+    "title": "About - Furkan Baytekin",
+    "description": "Product-oriented developer who owns end-to-end systems from architecture to production.",
+    "canonical": "https://furkanbaytekin.dev/about"
+  },
+  "person": {
+    "description": "Product-oriented developer who owns end-to-end systems from architecture to production. Designs and implements high-performance RESTful APIs and backend services with authentication, caching, validation, and database integration in Go and Node.js. Builds cost-efficient modular monoliths and multi-tenant platforms on Linux. Active technical content creator with 160+ published blog posts, 90+ YouTube videos, and a Udemy course. Strong communication from language education background bridges tech and non-tech staff.",
+    "knowsAbout": ["Go", "TypeScript", "JavaScript", "React", "Next.js", "Docker", "PostgreSQL", "Redis", "System Design", "CI/CD"]
+  },
+  "sections": [
+    {
+      "type": "profile",
+      "data": {
+        "image": {
+          "src": "https://furkanbaytekin.dev/android-chrome-512x512.png",
+          "alt": "Furkan Baytekin",
+          "width": 240,
+          "height": 240
+        },
+        "heading": "About",
+        "text": "Product-oriented developer who owns end-to-end systems from architecture to production. Designs and implements high-performance RESTful APIs and backend services with authentication, caching, validation, and database integration in Go and Node.js. Builds cost-efficient modular monoliths and multi-tenant platforms on Linux. Active technical content creator with 160+ published blog posts, 90+ YouTube videos, and a Udemy course. Strong communication from language education background bridges tech and non-tech staff."
+      }
+    },
+    { "type": "separator" },
+    {
+      "type": "chips",
+      "data": {
+        "label": "Languages",
+        "items": ["Go", "TypeScript", "JavaScript", "C#", "Python", "Bash", "SQL", "GraphQL", "HTML", "CSS", "GDScript", "AWK", "MDX", "Roff", "Pug", "Lua"]
+      }
+    },
+    { "type": "separator" },
+    {
+      "type": "stack",
+      "data": {
+        "label": "Tech Stack",
+        "groups": [
+          {
+            "title": "Frontend",
+            "items": ["Next.js", "React.js", "Solid.js", "Zustand", "Redux", "Tailwind CSS", "SASS"]
+          },
+          {
+            "title": "Backend",
+            "items": ["Go (Chi, Concurrency, Middleware)", "Nest.js (REST APIs)", "Node.js (Express.js)", "Django", "Flask", "Strapi (Headless CMS)"]
+          },
+          {
+            "title": "Infra & DevOps",
+            "items": ["Docker", "GitHub Actions", "GitLab CI", "Systemd", "Caddy", "Nginx", "Cloudflare", "Monitoring & Statistics", "Backups"]
+          },
+          {
+            "title": "Databases",
+            "items": ["SQLite", "PostgreSQL", "Redis", "MYSQL", "MSSQL", "MongoDB"]
+          },
+          {
+            "title": "Test & Automation",
+            "items": ["Go Test", "Jest", "Selenium"]
+          },
+          {
+            "title": "API & Backend Concepts",
+            "items": ["HTTP", "OAuth2", "JWT (RSA, JWKS)", "Input Validation", "API Versioning", "REST API & CRUD", "RBAC & API Security", "Rate Limiting", "Swagger / Postman"]
+          }
+        ]
+      }
+    },
+    { "type": "separator" },
+    {
+      "type": "expertise",
+      "data": {
+        "label": "What I Know",
+        "items": [
+          "System Design & Architecture",
+          "React / Next.js Frontend Architecture",
+          "Modular Monolith & Multi-tenant Design",
+          "RESTful API Design, Versioning & CRUD",
+          "Authentication & Authorization (JWT, RSA, JWKS, OAuth2, SSOT)",
+          "Performance Optimization & Caching (Memory, Disk, HTTP, E-Tag)",
+          "Database Migration & Schemas",
+          "Queue Systems & Background Jobs",
+          "CI/CD & Infrastructure Automation",
+          "Linux-based Production Environments"
+        ]
+      }
+    },
+    { "type": "separator" },
+    {
+      "type": "experience",
+      "data": {
+        "label": "Experience",
+        "items": [
+          {
+            "title": "Developer",
+            "company": "UNOG",
+            "date": "Sep 2026 - Present",
+            "points": []
+          },
+          {
+            "title": "Event Coordinator & Developer",
+            "company": "Godot OGT",
+            "date": "Jul 2026 - Present",
+            "points": []
+          },
+          {
+            "title": "Software Specialist",
+            "company": "IC HOLDİNG",
+            "date": "Mar 2026 - Present",
+            "points": []
+          },
+          {
+            "title": "Product Owner & Software Architect",
+            "company": "Oyun Sektörü Etkinlikleri",
+            "date": "Jan 2026 - Present",
+            "points": []
+          },
+          {
+            "title": "Lead Product Developer",
+            "company": "Abonesepeti",
+            "date": "2025 - Present",
+            "points": [
+              "Designed and built 7 Nest.js **microservices** with **RESTful API endpoints**, then consolidated into 1 **modular monolith** to reduce infrastructure overhead.",
+              "Built **versioned RESTful APIs** with **JWT (RSA/JWKS)** authentication and **Swagger/OpenAPI** documentation across all platform services.",
+              "Migrated from per-tenant Vercel deploys to a single Host-header-based **multi-tenant API server** with **~15MB** memory usage with Go.",
+              "Re-architected the entire platform to run within a single **ARM-based Linux server with 2GB RAM**. Reduced hosting costs by 90%.",
+              "Built custom **Go web framework** with built-in **routing, middleware, API layer**, due to CVEs. Reduced RAM usage from **300MB to 15MB, bandwidth by ~95%, response times by 60%**.",
+              "Reduced **CI build times from ~3 minutes to ~3 seconds** using Go's native compilation and implemented near-instant service restarts via systemd.",
+              "Designed automated **image resizing pipeline** converting uploads to WebP to **reduce bandwidth usage by ~75-80%** and improve load performance.",
+              "Implemented **Blue-Green** and **Rolling Update/Rollback** deployment strategies with **automated updates** for zero-downtime releases.",
+              "Managed **ARM-based Linux** production infrastructure, **reverse proxy** configuration (Caddy), and full **CI/CD automation** end-to-end.",
+              "Developed a shared **React-based UI component library** used across multiple internal projects, **improving development speed (~30%)**, creating a consistent UX."
+            ]
+          },
+          {
+            "title": "Full Stack Developer",
+            "company": "Abonesepeti",
+            "date": "2024 - 2025",
+            "points": [
+              "Rewrote the website using **GraphQL API** and **Next.js** with server-side data fetching.",
+              "Developed **automation tools** including **PDF and WebP generation**.",
+              "Built lead-page infrastructure with **webhook API integrations** and real-time updates using Vercel.",
+              "Adapted the web application into İş Bankası İşCep **mini-app via API integration** (+8,000 active users)."
+            ]
+          },
+          {
+            "title": "Frontend Developer",
+            "company": "Abonesepeti",
+            "date": "2023 - 2024",
+            "points": [
+              "**Rebuilt web application** using **Next.js** and **Tailwind CSS**.",
+              "Increased **uptime from ~90% to ~99.99%**.",
+              "Reduced release time from **30 to 7 minutes** through **CI/CD improvements**.",
+              "Improved organic traffic through **technical SEO optimization.**"
+            ]
+          }
+        ]
+      }
+    },
+    { "type": "separator" },
+    {
+      "type": "education",
+      "data": {
+        "label": "Education",
+        "items": [
+          {
+            "school": "Anadolu University",
+            "programme": "Web Design and Development (A.D.)",
+            "date": "2021 - 2023"
+          },
+          {
+            "school": "Gazi University",
+            "programme": "Turkish Language Education (B.A.)",
+            "date": "2019 - 2023"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{{stylesheet "/static/sections/stats.css"}}
+<section class="stats">
+  {{- range .Items}}
+  <a class="stat" href="{{.Href}}"{{if .External}} target="_blank" rel="noopener noreferrer"{{end}}>
+    <div class="stat-number">{{.Value}}</div>
+    <div class="stat-label">{{.Label}}</div>
+  </a>
+  {{- end}}
+</section>

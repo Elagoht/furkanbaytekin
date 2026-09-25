@@ -1,0 +1,14 @@
+{{stylesheet "/static/sections/profile.css"}}
+<div class="container">
+  <section class="about-page">
+    <div class="about-content">
+      {{- with .Image}}
+      <img class="about-avatar" src="{{.Src}}" alt="{{.Alt}}" width="{{.Width}}" height="{{.Height}}" fetchpriority="high">
+      {{- end}}
+      <div class="about-text-content">
+        <h1 class="about-page-heading">{{.Heading}}</h1>
+        <p class="about-text">{{.Text}}</p>
+      </div>
+    </div>
+  </section>
+</div>

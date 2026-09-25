@@ -1,0 +1,15 @@
+{{define "blog-card"}}
+<article class="blog-card">
+  <a class="blog-cover" href="{{.URL}}" tabindex="-1" aria-hidden="true">
+    {{- with .Cover}}{{if .Src}}<img src="{{.Src}}" alt="" width="{{.Width}}" height="{{.Height}}" loading="lazy">{{end}}{{end -}}
+  </a>
+  <div class="blog-content">
+    <div class="blog-meta">
+      {{- with .Category}}<span class="blog-category-tag">{{.}}</span>{{end}}
+      <time class="blog-date" datetime="{{.DateISO}}">{{.Date}}</time>
+    </div>
+    <h2 class="blog-title"><a href="{{.URL}}">{{.Title}}</a></h2>
+    <p class="blog-excerpt">{{.Excerpt}}</p>
+  </div>
+</article>
+{{end}}

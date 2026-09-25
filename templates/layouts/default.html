@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  {{hoist "head"}}
+  <link rel="icon" href="{{asset "/static/icons/favicon.ico"}}" type="image/x-icon">
+  <link rel="icon" href="{{asset "/static/icons/favicon-32x32.png"}}" type="image/png" sizes="32x32">
+  <link rel="icon" href="{{asset "/static/icons/android-chrome-192x192.png"}}" type="image/png" sizes="192x192">
+  <link rel="icon" href="{{asset "/static/icons/android-chrome-512x512.png"}}" type="image/png" sizes="512x512">
+  <link rel="apple-touch-icon" href="{{asset "/static/icons/apple-touch-icon.png"}}" sizes="180x180">
+  <link rel="manifest" href="{{asset "/static/manifest.webmanifest"}}">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="alternate" type="application/rss+xml" title="{{.Name}}" href="/rss">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  {{stylesheet "/static/site.css"}}
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css" media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+  </noscript>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="site-logo" href="/">{{.Name}}</a>
+      <nav class="site-nav">
+        {{- range .Nav}}
+        <a href="{{.Href}}">{{with .Icon}}<i class="ti ti-{{.}}" aria-hidden="true"></i> {{end}}{{.Label}}</a>
+        {{- end}}
+      </nav>
+    </div>
+  </header>
+
+  {{slot "content"}}
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-columns">
+        {{- range .Footer.Groups}}
+        <div class="footer-group">
+          <h4>{{.Title}}</h4>
+          {{- range .Links}}
+          <a href="{{.Href}}">{{.Label}}</a>
+          {{- end}}
+        </div>
+        {{- end}}
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copy">{{.Footer.Copyright}}</p>
+      </div>
+    </div>
+  </footer>
+</body>
+
+</html>

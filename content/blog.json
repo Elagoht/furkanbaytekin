@@ -1,0 +1,30 @@
+{
+  "list": {
+    "seo": {
+      "title": "Blog Posts - Written with love",
+      "description": "The blog posts I've written for you.",
+      "canonical": "https://furkanbaytekin.dev/blogs"
+    },
+    "heading": "Blog Posts",
+    "description": "The blog posts I've written for you.",
+    "searchPlaceholder": "Search posts...",
+    "filterLabel": "Filter",
+    "categoriesLabel": "Category",
+    "tagsLabel": "Tag",
+    "clearLabel": "Clear all",
+    "emptyMessage": "No posts match these filters.",
+    "pageSize": 12
+  },
+  "post": {
+    "titleSuffix": " - Furkan Baytekin",
+    "tocLabel": "Table of Contents",
+    "relatedLabel": "Related Posts",
+    "audioLabel": "Listen to this post",
+    "relatedCount": 3
+  },
+  "feed": {
+    "title": "Furkan Baytekin",
+    "description": "The blog posts I've written for you.",
+    "size": 30
+  }
+}

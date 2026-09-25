@@ -1,0 +1,15 @@
+{{stylesheet "/static/sections/hobbies.css"}}
+<div class="container">
+  <section class="hobbies">
+    <p class="section-label">{{.Label}}</p>
+    <div class="hobby-grid">
+      {{- range .Items}}
+      <div class="hobby-card">
+        <i class="ti ti-{{.Icon}} hobby-icon" aria-hidden="true"></i>
+        <h3 class="hobby-title">{{.Title}}</h3>
+        <p class="hobby-desc">{{.Description}}</p>
+      </div>
+      {{- end}}
+    </div>
+  </section>
+</div>

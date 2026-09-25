@@ -1,0 +1,53 @@
+.education {
+  padding: 3.5rem 0;
+}
+
+.education-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.education-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border: 0.0625rem solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--bg-card);
+  transition: all 0.2s;
+}
+
+.education-card:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover);
+}
+
+.education-university {
+  margin-bottom: 0.15rem;
+  color: var(--fg);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.education-programme {
+  color: var(--fg-secondary);
+  font-size: 0.85rem;
+}
+
+.education-date {
+  color: var(--fg-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+@media (max-width: 43.75rem) {
+  .education-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}

@@ -1,0 +1,11 @@
+{{stylesheet "/static/sections/expertise.css"}}
+<div class="container">
+  <section class="expertise">
+    <p class="section-label">{{.Label}}</p>
+    <ul class="expertise-grid">
+      {{- range .Items}}
+      <li class="expertise-item">{{.}}</li>
+      {{- end}}
+    </ul>
+  </section>
+</div>

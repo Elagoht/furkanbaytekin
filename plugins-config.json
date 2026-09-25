@@ -1,0 +1,18 @@
+{
+  "elagoht/opti-image": {
+    "prefix": "/_image/",
+    "quality": 82,
+    "webp": "auto",
+    "alphaThreshold": 0.001
+  },
+  "elagoht/jsonld": {
+    "siteName": "Furkan Baytekin",
+    "siteURL": "https://furkanbaytekin.dev"
+  },
+  "elagoht/minimizer": {
+    "html": true,
+    "json": true,
+    "css": true,
+    "js": false
+  }
+}

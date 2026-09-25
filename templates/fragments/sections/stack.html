@@ -1,0 +1,18 @@
+{{stylesheet "/static/sections/stack.css"}}
+<div class="container">
+  <section class="stack">
+    <p class="section-label">{{.Label}}</p>
+    <div class="stack-grid">
+      {{- range .Groups}}
+      <div class="stack-group">
+        <h3>{{.Title}}</h3>
+        <div class="stack-chips">
+          {{- range .Items}}
+          <span class="stack-chip">{{.}}</span>
+          {{- end}}
+        </div>
+      </div>
+      {{- end}}
+    </div>
+  </section>
+</div>

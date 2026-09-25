@@ -1,0 +1,29 @@
+.languages {
+  padding: 3.5rem 0;
+}
+
+.lang-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.lang-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  border: 0.0625rem solid var(--border);
+  border-radius: 6.25rem;
+  background: var(--bg-card);
+  color: var(--fg-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.lang-chip:hover {
+  border-color: var(--green-dim);
+  color: var(--fg);
+  box-shadow: 0 0 1rem var(--green-glow);
+}

@@ -1,0 +1,23 @@
+{{stylesheet "/static/sections/hero.css"}}
+<section class="hero">
+  {{- with .Avatar}}
+  <img class="hero-avatar" src="{{.Src}}" alt="{{.Alt}}" width="{{.Width}}" height="{{.Height}}" fetchpriority="high">
+  {{- end}}
+  <h1 class="hero-name">{{.Name}}</h1>
+  <div class="hero-titles">
+    {{- range .Titles}}
+    <span class="hero-title">{{with .Icon}}<i class="ti ti-{{.}}" aria-hidden="true"></i>{{end}}{{.Label}}</span>
+    {{- end}}
+  </div>
+  <p class="hero-sub">{{.Bio}}</p>
+  <div class="hero-actions">
+    {{- range .Actions}}
+    <a class="btn btn-{{.Variant}}" href="{{.Href}}">{{.Label}}</a>
+    {{- end}}
+  </div>
+  <nav class="socials" aria-label="Social links">
+    {{- range .Socials}}
+    <a href="{{.Href}}">{{.Label}}</a>
+    {{- end}}
+  </nav>
+</section>
