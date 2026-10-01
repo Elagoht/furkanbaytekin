@@ -1,0 +1,22 @@
+{{/* The share card of every page that sets none of its own, drawn by
+     elagoht/ogimage from the page's title and description. */}}
+<div style="display:flex; flex-direction:column; justify-content:space-between;
+            width:1200px; height:630px; padding:72px;
+            background:linear-gradient(135deg, #0a0a0a 55%, #1a2015); color:#eee;
+            font-family:Outfit">
+  <span style="font-size:26px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#7a9a5e">{{.Site.Host}}</span>
+  <div style="display:flex; flex-direction:column; gap:24px">
+    <h1 data-fit style="font-size:80px; font-weight:700; line-height:1.1;
+                        display:-webkit-box; -webkit-box-orient:vertical;
+                        -webkit-line-clamp:2; overflow:hidden">{{.Title}}</h1>
+    {{- if .Description}}
+    <p style="font-size:30px; line-height:1.4; color:#999;
+              display:-webkit-box; -webkit-box-orient:vertical;
+              -webkit-line-clamp:2; overflow:hidden">{{.Description}}</p>
+    {{- end}}
+  </div>
+  <div style="display:flex; align-items:center; gap:20px">
+    <img src="/static/icons/android-chrome-192x192.png" style="width:56px; height:56px; border-radius:28px">
+    <span style="font-size:28px; font-weight:600">{{.Site.Name}}</span>
+  </div>
+</div>

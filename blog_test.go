@@ -5,7 +5,10 @@ import (
 	"encoding/xml"
 	"fmt"
 	"image"
+	"image/color"
+	"image/draw"
 	"image/jpeg"
+	"image/png"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -72,7 +75,14 @@ func fakeCMS(t *testing.T) *cms {
 		io.WriteString(w, `{"hello-world":42}`)
 	})
 	mux.HandleFunc("GET /api/posts/{slug}", func(w http.ResponseWriter, r *http.Request) {
-		if r.PathValue("slug") != "hello-world" {
+		switch r.PathValue("slug") {
+		case "second":
+			// The list's other post, so an export builds every page.
+			io.WriteString(w, `{"slug":"second","title":"Second","publishedAt":"2026-08-01 00:00:00","updatedAt":"2026-08-01 00:00:00",
+				"author":{"id":2,"name":"Furkan Baytekin"},"category":{"slug":"software","name":"Software"},"tags":[],"content":"Short."}`)
+			return
+		case "hello-world":
+		default:
 			http.NotFound(w, r)
 			return
 		}
@@ -96,12 +106,19 @@ func fakeCMS(t *testing.T) *cms {
 	})
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/uploads/") {
+			if r.URL.EscapedPath() == "/uploads/content/d.png" {
+				png.Encode(w, image.NewRGBA(image.Rect(0, 0, 1280, 720)))
+				return
+			}
 			// Like the real CMS: the literal "+" and nothing else.
 			if r.URL.EscapedPath() != "/uploads/cover/hello-world+1746296252694" {
 				http.NotFound(w, r)
 				return
 			}
-			jpeg.Encode(w, image.NewRGBA(image.Rect(0, 0, 1280, 720)), nil)
+			// Red, so a share card can tell it was drawn.
+			cover := image.NewRGBA(image.Rect(0, 0, 1280, 720))
+			draw.Draw(cover, cover.Bounds(), image.NewUniform(color.RGBA{R: 255, A: 255}), image.Point{}, draw.Src)
+			jpeg.Encode(w, cover, nil)
 			return
 		}
 		state.record(&state.paths, r.URL.EscapedPath())

@@ -36,6 +36,7 @@ import (
 	jsonld "github.com/Elagoht/collage-jsonld"
 	meta "github.com/Elagoht/collage-meta"
 	minimizer "github.com/Elagoht/collage-minimizer"
+	ogimage "github.com/Elagoht/collage-ogimage"
 	optiimage "github.com/Elagoht/collage-opti-image"
 	robots "github.com/Elagoht/collage-robots"
 	sitemap "github.com/Elagoht/collage-sitemap"
@@ -60,6 +61,13 @@ var templatesFS embed.FS
 
 //go:embed all:static
 var staticFS embed.FS
+
+// The faces share cards are drawn in: the site's own Outfit, as static TrueType
+// files, which is what the card renderer reads (the pages load it from Google
+// Fonts instead). Outside static/, because no page asks for them.
+//
+//go:embed fonts/*.ttf
+var fontsFS embed.FS
 
 func main() {
 	// Before the flags: -port's default is read from PORT. "collage dev" reads
@@ -150,6 +158,13 @@ func newApp(devMode bool, port int) (*collage.App, error) {
 		return nil, err
 	}
 
+	// The static files are mounted below, and share cards read the avatar
+	// from them.
+	assets, err := staticFiles(devMode)
+	if err != nil {
+		return nil, err
+	}
+
 	// Rendered pages and produced images live under one directory, so one
 	// setting moves or isolates both.
 	cacheDir := envString("CACHE_DIR", ".cache")
@@ -196,10 +211,28 @@ func newApp(devMode bool, port int) (*collage.App, error) {
 			meta.New(meta.Options{
 				SiteName: site.Name,
 				Locales:  map[string]string{"en": "en_US"},
-				// The share card of every page without its own image: a
-				// post's cover replaces it.
-				DefaultImage:    site.Person.Image,
-				DefaultImageAlt: site.Person.Name,
+			}),
+			// After meta, so the card's og:image is declared after meta's:
+			// a post's card replaces its cover, and every other page gets
+			// the default card from its title and description.
+			ogimage.NewWith(ogimage.Config{
+				Templates: cardTemplates(devMode),
+				Root:      ".",
+				Default:   "og/default.html",
+				SiteName:  site.Name,
+				// The avatar is read from the static files, and a
+				// cover from the CMS.
+				Files:        map[string]fs.FS{"/static/": assets},
+				ImageOrigins: []string{client.Origin()},
+				Fonts: []ogimage.Font{
+					{Family: "Outfit", Weight: 400, File: "fonts/Outfit-Regular.ttf"},
+					{Family: "Outfit", Weight: 600, File: "fonts/Outfit-SemiBold.ttf"},
+					{Family: "Outfit", Weight: 700, File: "fonts/Outfit-Bold.ttf"},
+				},
+				FontFiles: fontsFS,
+				// Beside the page cache: a cached page names a card that a
+				// restarted process must still be able to draw.
+				Dir: filepath.Join(cacheDir, "ogimage"),
 			}),
 			sitemap.New(sitemap.Options{
 				// Every search is a fresh render and says nothing the list
@@ -234,10 +267,6 @@ func newApp(devMode bool, port int) (*collage.App, error) {
 		return nil, err
 	}
 
-	assets, err := staticFiles(devMode)
-	if err != nil {
-		return nil, err
-	}
 	if err := app.Mount("/static/", assets); err != nil {
 		return nil, fmt.Errorf("mount static files: %w", err)
 	}
@@ -261,6 +290,22 @@ func staticFiles(devMode bool) (fs.FS, error) {
 	// fs.Sub, because the embedded tree contains the "static" directory
 	// itself: mounting it whole would serve "/static/static/app.css".
 	return fs.Sub(staticFS, "static")
+}
+
+// cardTemplates returns the filesystem share card templates are read from, rooted
+// at templates/: the embedded copy, except in development, where the directory on
+// disk wins so an edited card shows up on the next render, as a page does.
+func cardTemplates(devMode bool) fs.FS {
+	if devMode {
+		if root, err := os.OpenRoot("templates"); err == nil {
+			return root.FS()
+		}
+	}
+	sub, err := fs.Sub(templatesFS, "templates")
+	if err != nil {
+		panic(err) // a constant, valid path
+	}
+	return sub
 }
 
 // imageOrigins is the scheme and host of each of urls.

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/url"
+	"strconv"
 	"time"
 
 	"furkanbaytekin/data/blog"
@@ -13,6 +14,7 @@ import (
 
 	jsonld "github.com/Elagoht/collage-jsonld"
 	meta "github.com/Elagoht/collage-meta"
+	ogimage "github.com/Elagoht/collage-ogimage"
 	"github.com/Elagoht/collage/pkg/collage"
 )
 
@@ -84,6 +86,23 @@ func (b *Blog) postData(ctx context.Context, rc *collage.RenderContext) (postVie
 		Modified:    post.UpdatedAt.Time,
 		Author:      post.Author.Name,
 	})
+	// After meta.Set: the card's og:image is declared later, so it is the one
+	// the head keeps, and the cover is drawn on it.
+	readTime := ""
+	if post.ReadTime > 0 {
+		readTime = strconv.Itoa(post.ReadTime)
+	}
+	if err := ogimage.Set(rc, "og/post.html", ogimage.Card{
+		Title: post.Title,
+		Label: post.Category.Name,
+		Image: b.Client.Asset(post.CoverImage),
+		Fields: map[string]string{
+			"date":     post.PublishedAt.Format(dateLayout),
+			"readTime": readTime,
+		},
+	}); err != nil {
+		return postView{}, nil, fmt.Errorf("blog post %q: share card: %w", slug, err)
+	}
 	jsonld.Emit(rc, jsonld.BlogPosting{
 		Headline:      post.Title,
 		Description:   excerpt,

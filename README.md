@@ -39,8 +39,10 @@ fragments/layouts/          Master(), the shell every page renders inside
 fragments/sections/         the blocks a section page is made of; fragments/seo, its head tags
 actions/                    POST /blogs/{slug}/view and POST /api/webhook; their handlers in actions/funcs/
 documents/                  routes that are not HTML: /llms.txt and /healthz, and what the feed and sitemap plugins list
-templates/                  the HTML, one file per fragment
+templates/                  the HTML, one file per fragment; templates/og/, the share cards
 static/                     CSS, icons and the web manifest, at /static/
+fonts/                      Outfit as TrueType, which the share cards are drawn in (OFL.txt)
+og_test.go                  the share cards' tests
 ```
 
 The areas are `landing` (`/`, `/about`), `blog` and `errors` (the not-found page).
@@ -76,9 +78,40 @@ sections are read from its JSON on every render.
 The canonical URL, Open Graph and Twitter tags in every page's head are
 [elagoht/meta](https://github.com/Elagoht/collage-meta)'s, from the page's own
 address against `Config.BaseURL`, which is `site.json`'s `url`. A page's JSON
-gives its title and description (`seo`); a post gives its cover, dates and author
+gives its title and description (`seo`); a post gives its dates and author
 too. The feed's title and description are `blog.json`'s `feed`, read once when the
 site starts: change them and restart.
+
+## Share cards
+
+The image a link shows on X, LinkedIn, Slack or a messenger is drawn by this site,
+by [elagoht/ogimage](https://github.com/Elagoht/collage-ogimage), from an HTML
+template in `templates/og/`:
+
+- `og/post.html` is a post's: its title, category, date, read time and cover,
+  set in `fragments/pages/blog/post.go` with `ogimage.Set`, after `meta.Set` so
+  the card's `og:image` is the one the head keeps;
+- `og/default.html` is every other page's, from the title and description in its
+  head, with no code.
+
+They are drawn in Outfit, from `fonts/`, in `site.css`'s dark palette; the
+avatar comes from `static/icons/`, and a cover from the CMS. A card is drawn on
+its first request, kept under `$CACHE_DIR/ogimage`, and served at a URL made from
+what is on it, `/_og/<hash>.png`: a retitled post gets a new card at a new URL,
+and the old one still answers for shares made before.
+
+Under `collage dev`, `/_og-preview/` shows the card each page carried on its last
+render, and an edit to a card template shows on the page's next reload. To draw
+one card without a page:
+
+```sh
+echo '{"title":"A title","label":"Software","fields":{"date":"Oct 2, 2026","readTime":"7"}}' > card.json
+go run . ogimage og/post.html card.json > card.png
+```
+
+The template's CSS is a subset — flex boxes and text, no `position` or grid; the
+plugin's README lists it — and a property outside it stops the site at startup,
+naming the template and line.
 
 ## The blog
 

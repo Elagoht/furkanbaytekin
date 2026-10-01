@@ -1,0 +1,31 @@
+{{/* A post's share card: drawn by elagoht/ogimage, not served as a page. See
+     README.md, "Share cards". The palette is site.css's dark one. */}}
+<div style="display:flex; width:1200px; height:630px; padding:64px; gap:48px;
+            background:linear-gradient(135deg, #0a0a0a 55%, #1a2015); color:#eee;
+            font-family:Outfit">
+  <div style="display:flex; flex-direction:column; justify-content:space-between; flex:1; min-width:0">
+    <div style="display:flex; flex-direction:column; gap:20px">
+      {{- if .Label}}
+      <span style="font-size:24px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#7a9a5e">{{.Label}}</span>
+      {{- end}}
+      <h1 data-fit style="font-size:64px; font-weight:700; line-height:1.15;
+                          display:-webkit-box; -webkit-box-orient:vertical;
+                          -webkit-line-clamp:4; overflow:hidden">{{.Title}}</h1>
+    </div>
+    <div style="display:flex; align-items:center; gap:20px">
+      <img src="/static/icons/android-chrome-192x192.png" style="width:56px; height:56px; border-radius:28px">
+      <div style="display:flex; flex-direction:column; gap:4px">
+        <span style="font-size:26px; font-weight:600">{{.Site.Name}}</span>
+        <span style="font-size:22px; color:#999">
+          {{- .Fields.date}}{{if .Fields.readTime}} · {{.Fields.readTime}} min read{{end -}}
+        </span>
+      </div>
+    </div>
+  </div>
+  {{- if .Image}}
+  <div style="display:flex; align-items:center">
+    <img src="{{.Image}}" style="width:400px; height:225px; object-fit:cover;
+                                 border-radius:16px; border:1px solid #222">
+  </div>
+  {{- end}}
+</div>

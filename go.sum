@@ -8,6 +8,8 @@ github.com/Elagoht/collage-meta v0.1.4 h1:HIYFPWRI058ub7z7gbtrXvqS1gQypWjtyjxy/9
 github.com/Elagoht/collage-meta v0.1.4/go.mod h1:92RYfQeSFIZTlqcrBZ1IF4Xdfgd4isV0a50O5RjRAr4=
 github.com/Elagoht/collage-minimizer v0.1.7 h1:w+MH7qOOrM2LCkWBivhj7S4nTr5f/DvCEjh/24UrRLk=
 github.com/Elagoht/collage-minimizer v0.1.7/go.mod h1:ewjXk1tSNNhcMqxbXEX4dPFybzwNQwVwTxtvx3O7n74=
+github.com/Elagoht/collage-ogimage v0.1.1 h1:snoDl5D/Un6oOe5F2P/AyhtoNpR5bcPeUCEbcyq1+Pg=
+github.com/Elagoht/collage-ogimage v0.1.1/go.mod h1:ItuuMxQfUQFulA0zkLFDzgwWE+e5CTPQYAdooFKkgf8=
 github.com/Elagoht/collage-opti-image v0.2.4 h1:rgN+2ynoLkGBVJL7DmvBNe0mbBy1/LFvqj1Z6v0NwO0=
 github.com/Elagoht/collage-opti-image v0.2.4/go.mod h1:Uv3xejvO0xnWsXY/24AvpL9aUqE7zt6Jama0FBePDCc=
 github.com/Elagoht/collage-robots v0.1.2 h1:Arn5MKwN/ys61CAvOgXxbCkyQMBIN43TUjrmgb2GUqA=
@@ -42,7 +44,13 @@ github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc h1:+
 github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc/go.mod h1:ovIvrum6DQJA4QsJSovrkC4saKHQVs7TvcaeO8AIl5I=
 golang.org/x/image v0.46.0 h1:b1+oYj0Jbp6K5MDT4i4/eZpYlk3V8SJhhDKh6LBHAyQ=
 golang.org/x/image v0.46.0/go.mod h1:3B3W05VGVQyuXucLINLjXKrqISASfi4Xj+iCVkLMwew=
+golang.org/x/net v0.59.0 h1:5zfYln+w5XCxwrnMMJPufRgNoXEaGxl0wo5GqPXyues=
+golang.org/x/net v0.59.0/go.mod h1:2DA/G1UfVbCpQPeWTmMPGY7Cs2PkBkwu743bVX5PIVg=
 golang.org/x/sync v0.23.0 h1:KameEIfc1IkluZyXWLn39Wd4tURc6GbCiISGiZm2bQk=
 golang.org/x/sync v0.23.0/go.mod h1:sUUOizhqBxiL6pEWpqNLUiaJn1ShEbZ6BBqskPbjZm0=
+golang.org/x/sys v0.48.0 h1:bbX/i/6MgT9BVLM9RT1thmxL04yeTAhbEz4SyadbXoo=
+golang.org/x/sys v0.48.0/go.mod h1:hNLxWAXmnKAxqDtdwIYC4bM9oQPEecfsnNMuSxOs3og=
+golang.org/x/text v0.42.0 h1:JbOZXgfeCPU9gacVtYliJqOhD+zhrEqK4LfdpmlUZqI=
+golang.org/x/text v0.42.0/go.mod h1:ojzP1Z+2QtioaF8DTtO8K5q7JWVVYwZKenzujK0Zd0E=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
