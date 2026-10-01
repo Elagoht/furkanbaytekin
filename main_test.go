@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"net/http"
-	"net/http/httptest"
 	"regexp"
 	"strconv"
 	"strings"
@@ -11,69 +10,74 @@ import (
 	"time"
 
 	"furkanbaytekin/fragments/sections"
+
+	"github.com/Elagoht/collage/pkg/collage"
+	"github.com/Elagoht/collage/pkg/collagetest"
 )
 
 // Testing a collage application needs no server and no port: app.Handler() is an
-// ordinary http.Handler, so net/http/httptest drives it directly. Everything below
-// goes through the same newApp main uses, so what these tests exercise is the site
-// that actually runs rather than a second wiring that can drift from it.
+// ordinary http.Handler, and collagetest drives it the way a browser does. Everything
+// below goes through the same newApp main uses, so what these tests exercise is the
+// site that actually runs rather than a second wiring that can drift from it.
 
-func handler(t *testing.T) http.Handler {
+// client is a browser of its own on a fresh copy of the site, in front of a fake CMS.
+func client(t *testing.T) *collagetest.Client {
 	t.Helper()
 	fakeCMS(t)
+	return clientOf(t, newTestApp(t))
+}
+
+// newTestApp builds the application main builds, against whatever CMS the test set up.
+func newTestApp(t *testing.T) *collage.App {
+	t.Helper()
 	app, err := newApp(false, 0)
 	if err != nil {
 		t.Fatalf("newApp() = %v, want nil", err)
 	}
-	return app.Handler()
+	return app
 }
 
-// get returns the response to a GET of target, and its body.
-func get(t *testing.T, h http.Handler, target string) (*httptest.ResponseRecorder, string) {
+func clientOf(t *testing.T, app *collage.App) *collagetest.Client {
 	t.Helper()
-	rec := httptest.NewRecorder()
-	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, target, nil))
-	return rec, rec.Body.String()
+	return collagetest.New(t, app.Handler())
 }
 
 func TestPagesRender(t *testing.T) {
-	h := handler(t)
+	c := client(t)
 	for target, want := range map[string]string{
 		"/":      "Furkan Baytekin",
 		"/about": "Product-oriented developer",
 	} {
-		rec, body := get(t, h, target)
-		if rec.Code != http.StatusOK {
-			t.Errorf("GET %s = %d, want 200", target, rec.Code)
+		res := c.Get(target)
+		if res.Status != http.StatusOK {
+			t.Errorf("GET %s = %d, want 200", target, res.Status)
 			continue
 		}
-		if !strings.Contains(body, want) {
+		if !strings.Contains(res.Body, want) {
 			t.Errorf("GET %s does not contain %q", target, want)
 		}
 		// Counted, not merely found: a layout writing one and a page hoisting
 		// another is two titles, which is a page that looks fine and is not.
-		if n := strings.Count(body, "<title>"); n != 1 {
+		if n := strings.Count(res.Body, "<title>"); n != 1 {
 			t.Errorf("GET %s has %d titles, want exactly 1", target, n)
 		}
 	}
 }
 
 func TestStylesheetIsContentAddressed(t *testing.T) {
-	_, body := get(t, handler(t), "/")
+	c := client(t)
+	page := c.Get("/")
 
-	link := regexp.MustCompile(`href="(/static/site\.[0-9a-f]+\.css)"`).FindStringSubmatch(body)
+	link := regexp.MustCompile(`href="(/static/site\.[0-9a-f]+\.css)"`).FindStringSubmatch(page.Body)
 	if link == nil {
-		t.Fatalf("the page does not link a content-addressed stylesheet:\n%s", body)
+		t.Fatalf("the page does not link a content-addressed stylesheet:\n%s", page.Body)
 	}
 
-	rec, css := get(t, handler(t), link[1])
-	if rec.Code != http.StatusOK {
-		t.Fatalf("GET %s = %d, want 200", link[1], rec.Code)
-	}
-	if css == "" {
+	css := c.Get(link[1]).WantStatus(http.StatusOK)
+	if css.Body == "" {
 		t.Error("the stylesheet served no bytes")
 	}
-	if cc := rec.Header().Get("Cache-Control"); !strings.Contains(cc, "immutable") {
+	if cc := css.Header.Get("Cache-Control"); !strings.Contains(cc, "immutable") {
 		t.Errorf("Cache-Control = %q, want immutable", cc)
 	}
 }
@@ -81,10 +85,7 @@ func TestStylesheetIsContentAddressed(t *testing.T) {
 // The home page is home.json: every section it lists renders, in its order,
 // with the page's own title and description in place of the site's defaults.
 func TestHomeRendersItsSectionsInOrder(t *testing.T) {
-	rec, body := get(t, handler(t), "/")
-	if rec.Code != http.StatusOK {
-		t.Fatalf("GET / = %d, want 200", rec.Code)
-	}
+	body := client(t).Get("/").WantStatus(http.StatusOK).Body
 
 	last := -1
 	for _, want := range []string{`class="hero"`, `class="section-sep"`, `class="hobbies"`, `class="stats"`} {
@@ -110,7 +111,7 @@ func TestHomeRendersItsSectionsInOrder(t *testing.T) {
 }
 
 func TestCopyrightCarriesTheCurrentYear(t *testing.T) {
-	_, body := get(t, handler(t), "/")
+	body := client(t).Get("/").Body
 	want := "Copyleft © " + strconv.Itoa(time.Now().Year()) + " All Wrongs Reversed"
 	if !strings.Contains(body, want) {
 		t.Errorf("GET / does not contain %q", want)
@@ -118,10 +119,7 @@ func TestCopyrightCarriesTheCurrentYear(t *testing.T) {
 }
 
 func TestAboutRendersItsSections(t *testing.T) {
-	rec, body := get(t, handler(t), "/about")
-	if rec.Code != http.StatusOK {
-		t.Fatalf("GET /about = %d, want 200", rec.Code)
-	}
+	body := client(t).Get("/about").WantStatus(http.StatusOK).Body
 
 	last := -1
 	for _, want := range []string{`class="about-page"`, `class="languages"`, `class="stack"`, `class="expertise"`, `class="experience"`, `class="education"`} {
@@ -160,7 +158,7 @@ func TestEmphasisEscapesAndBolds(t *testing.T) {
 
 // jsonld: the home page describes its person, and the plugin adds the site.
 func TestHomeHasStructuredData(t *testing.T) {
-	_, body := get(t, handler(t), "/")
+	body := client(t).Get("/").Body
 
 	blocks := regexp.MustCompile(`<script type="application/ld\+json">(.*?)</script>`).FindAllStringSubmatch(body, -1)
 	types := map[string]bool{}
@@ -184,7 +182,7 @@ func TestHomeHasStructuredData(t *testing.T) {
 // opti-image: the avatar declares its size, so its src is replaced with a copy
 // this server produces and serves under /_image/.
 func TestAvatarIsServedByThisSite(t *testing.T) {
-	_, body := get(t, handler(t), "/")
+	body := client(t).Get("/").Body
 
 	avatar := regexp.MustCompile(`<img class="hero-avatar" src="([^"]+)"`).FindStringSubmatch(body)
 	if avatar == nil {
@@ -197,7 +195,7 @@ func TestAvatarIsServedByThisSite(t *testing.T) {
 
 // minimizer: indentation between tags is collapsed.
 func TestPagesAreMinified(t *testing.T) {
-	_, body := get(t, handler(t), "/")
+	body := client(t).Get("/").Body
 	if strings.Contains(body, "\n  ") {
 		t.Error("the page still carries its template indentation")
 	}
@@ -205,16 +203,14 @@ func TestPagesAreMinified(t *testing.T) {
 
 // The favicons are this site's own files, not links to another host.
 func TestFaviconsAreServedLocally(t *testing.T) {
-	_, body := get(t, handler(t), "/")
-
-	icons := regexp.MustCompile(`rel="(?:icon|apple-touch-icon)" href="([^"]+)"`).FindAllStringSubmatch(body, -1)
+	c := client(t)
+	icons := regexp.MustCompile(`rel="(?:icon|apple-touch-icon)" href="([^"]+)"`).FindAllStringSubmatch(c.Get("/").Body, -1)
 	if len(icons) == 0 {
 		t.Fatal("the page links no icons")
 	}
-	h := handler(t)
 	for _, icon := range icons {
-		if rec, _ := get(t, h, icon[1]); rec.Code != http.StatusOK {
-			t.Errorf("GET %s = %d, want 200", icon[1], rec.Code)
+		if res := c.Get(icon[1]); res.Status != http.StatusOK {
+			t.Errorf("GET %s = %d, want 200", icon[1], res.Status)
 		}
 	}
 }
@@ -222,16 +218,13 @@ func TestFaviconsAreServedLocally(t *testing.T) {
 // The health check answers without rendering a template, which is the point of it:
 // it cannot start failing because a page did.
 func TestHealthCheck(t *testing.T) {
-	rec, body := get(t, handler(t), "/healthz")
+	res := client(t).Get("/healthz").WantStatus(http.StatusOK)
 
-	if rec.Code != http.StatusOK {
-		t.Fatalf("GET /healthz = %d, want 200", rec.Code)
-	}
 	var health struct{ Status string }
-	if err := json.Unmarshal([]byte(body), &health); err != nil || health.Status != "ok" {
-		t.Errorf("body = %q, want a status of ok", body)
+	if err := json.Unmarshal([]byte(res.Body), &health); err != nil || health.Status != "ok" {
+		t.Errorf("body = %q, want a status of ok", res.Body)
 	}
-	if ct := rec.Header().Get("Content-Type"); !strings.HasPrefix(ct, "application/json") {
+	if ct := res.Header.Get("Content-Type"); !strings.HasPrefix(ct, "application/json") {
 		t.Errorf("Content-Type = %q, want application/json", ct)
 	}
 }
@@ -239,11 +232,8 @@ func TestHealthCheck(t *testing.T) {
 // An address that is nothing answers 404 with this site's own page. A static
 // export writes the same page as 404.html.
 func TestNotFoundPage(t *testing.T) {
-	rec, body := get(t, handler(t), "/there-is-nothing-here")
+	body := client(t).Get("/there-is-nothing-here").WantStatus(http.StatusNotFound).Body
 
-	if rec.Code != http.StatusNotFound {
-		t.Fatalf("status = %d, want 404", rec.Code)
-	}
 	if !strings.Contains(body, "Page not found") || !strings.Contains(body, "<title>Page Not Found</title>") {
 		t.Errorf("body = %q, want this site's own not-found page", body)
 	}
@@ -251,14 +241,19 @@ func TestNotFoundPage(t *testing.T) {
 
 // A method no page answers is a 405 naming what the URL does accept.
 func TestUnsupportedMethodIsRefused(t *testing.T) {
-	req := httptest.NewRequest(http.MethodDelete, "/", nil)
-	rec := httptest.NewRecorder()
-	handler(t).ServeHTTP(rec, req)
+	c := client(t)
+	res := c.Do(c.Request(http.MethodDelete, "/", nil)).WantStatus(http.StatusMethodNotAllowed)
 
-	if rec.Code != http.StatusMethodNotAllowed {
-		t.Fatalf("status = %d, want 405", rec.Code)
-	}
-	if allow := rec.Header().Get("Allow"); !strings.Contains(allow, "GET") {
+	if allow := res.Header.Get("Allow"); !strings.Contains(allow, "GET") {
 		t.Errorf("Allow = %q, want it to name what the URL accepts", allow)
+	}
+}
+
+// Every link a template builds by name — pageURL, actionURL — names a route that
+// exists, checked without rendering anything, as "collage check" does.
+func TestLinksResolve(t *testing.T) {
+	fakeCMS(t)
+	if findings := newTestApp(t).Check(); len(findings) > 0 {
+		t.Errorf("broken links: %v", findings)
 	}
 }
