@@ -1,8 +1,7 @@
 {
   "seo": {
     "title": "About - Furkan Baytekin",
-    "description": "Product-oriented developer who owns end-to-end systems from architecture to production.",
-    "canonical": "https://furkanbaytekin.dev/about"
+    "description": "Product-oriented developer who owns end-to-end systems from architecture to production."
   },
   "person": {
     "description": "Product-oriented developer who owns end-to-end systems from architecture to production. Designs and implements high-performance RESTful APIs and backend services with authentication, caching, validation, and database integration in Go and Node.js. Builds cost-efficient modular monoliths and multi-tenant platforms on Linux. Active technical content creator with 160+ published blog posts, 90+ YouTube videos, and a Udemy course. Strong communication from language education background bridges tech and non-tech staff.",

@@ -16,6 +16,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -26,7 +27,19 @@ type Client struct {
 	base   *url.URL
 	key    string
 	client *http.Client
+
+	// all is AllPosts' last answer, kept for allPostsTTL: the sitemap asks for
+	// the whole list and then the update date of each post in it, and a static
+	// build renders every post, so without it one sitemap is as many requests
+	// as there are posts, past the CMS's 100 a minute.
+	allMu sync.Mutex
+	all   []Post
+	allAt time.Time
 }
+
+// allPostsTTL is how long AllPosts reuses the list it fetched. ForgetPosts drops
+// it sooner, when the CMS reports a change.
+const allPostsTTL = time.Minute
 
 // New returns a client for the API at baseURL, e.g.
 // "https://myblogcms.furkanbaytekin.dev/api". The CMS refuses every request
@@ -175,6 +188,29 @@ var slugPattern = regexp.MustCompile(`^[A-Za-z0-9]+(?:[-_+][A-Za-z0-9]+)*$`)
 
 // AllPosts is every published post, newest first, read a page at a time.
 func (c *Client) AllPosts(ctx context.Context) ([]Post, error) {
+	c.allMu.Lock()
+	defer c.allMu.Unlock()
+	if c.all != nil && time.Since(c.allAt) < allPostsTTL {
+		return c.all, nil
+	}
+	posts, err := c.fetchAllPosts(ctx)
+	if err != nil {
+		return nil, err
+	}
+	c.all, c.allAt = posts, time.Now()
+	return posts, nil
+}
+
+// ForgetPosts drops the list AllPosts keeps, so the next call asks the CMS. The
+// webhook calls it on a change to the posts: a sitemap made again after the
+// change must not be made from the list before it.
+func (c *Client) ForgetPosts() {
+	c.allMu.Lock()
+	defer c.allMu.Unlock()
+	c.all = nil
+}
+
+func (c *Client) fetchAllPosts(ctx context.Context) ([]Post, error) {
 	const limit, maxPages = 100, 100
 	var posts []Post
 	seen := map[string]bool{}

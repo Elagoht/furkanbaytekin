@@ -38,7 +38,7 @@ fragments/pages/<area>/     each page's content and the data it reads, mirroring
 fragments/layouts/          Master(), the shell every page renders inside
 fragments/sections/         the blocks a section page is made of; fragments/seo, its head tags
 actions/                    POST /blogs/{slug}/view and POST /api/webhook; their handlers in actions/funcs/
-documents/                  routes that are not HTML: /rss, /robots.txt, /sitemap.xml, /llms.txt, and /healthz
+documents/                  routes that are not HTML: /llms.txt and /healthz, and what the feed and sitemap plugins list
 templates/                  the HTML, one file per fragment
 static/                     CSS, icons and the web manifest, at /static/
 ```
@@ -71,6 +71,15 @@ site.json's person as the base. Editing a section's data shows up on reload
 under `collage dev`, and so does adding, removing or reordering sections: a page's
 sections are read from its JSON on every render.
 
+## Head, feed and sitemap
+
+The canonical URL, Open Graph and Twitter tags in every page's head are
+[elagoht/meta](https://github.com/Elagoht/collage-meta)'s, from the page's own
+address against `Config.BaseURL`, which is `site.json`'s `url`. A page's JSON
+gives its title and description (`seo`); a post gives its cover, dates and author
+too. The feed's title and description are `blog.json`'s `feed`, read once when the
+site starts: change them and restart.
+
 ## The blog
 
 Posts come live from the Bloggo CMS at `BLOG_API_URL`, authenticated with
@@ -84,9 +93,9 @@ words around the posts are in `data/content/blog.json`.
 | `/blogs/search?search=` | the same list, searched | never: its key would be whatever anyone types |
 | `/blogs/{slug}` | a post: Markdown with highlighted code, a table of contents, related posts | 10 minutes |
 | `/blogs/{slug}/view` | POST: counts a view in the CMS, answers `{"views": n}` | — |
-| `/rss` | the latest posts as RSS 2.0, linked from every page's head | 30 minutes |
-| `/sitemap.xml` | the fixed pages and every post, with its update date | 1 hour |
-| `/robots.txt` | everything allowed but search, and the sitemap | 1 hour |
+| `/rss` | [elagoht/feed](https://github.com/Elagoht/collage-feed): the latest posts as RSS 2.0, linked from every page's head | until a post changes |
+| `/sitemap.xml` | [elagoht/sitemap](https://github.com/Elagoht/collage-sitemap): every page but search, and every post with its update date | until a post changes |
+| `/robots.txt` | [elagoht/robots](https://github.com/Elagoht/collage-robots): everything allowed but search, and the sitemap | fixed at start |
 | `/llms.txt` | [llms.txt](https://llmstxt.org): who the site is about, its pages, every post | 1 hour |
 
 The times above are a fallback. Bloggo reports every change to

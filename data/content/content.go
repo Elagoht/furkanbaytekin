@@ -85,7 +85,6 @@ type PersonDetails struct {
 type SEO struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
-	Canonical   string `json:"canonical"`
 }
 
 type Section struct {

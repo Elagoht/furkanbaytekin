@@ -29,6 +29,8 @@ type cms struct {
 	views   []string
 	paths   []string
 	title   string
+	// extra is appended to the list of posts, for a post published mid-test.
+	extra string
 }
 
 func (c *cms) record(list *[]string, value string) {
@@ -61,7 +63,10 @@ func fakeCMS(t *testing.T) *cms {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/posts", func(w http.ResponseWriter, r *http.Request) {
 		state.record(&state.queries, r.URL.RawQuery)
-		io.WriteString(w, `{"data":[`+state.post(post)+`},{"slug":"second","title":"Second","publishedAt":"2026-08-01 00:00:00","category":{"slug":"software","name":"Software"}}],"page":1,"take":6,"total":14}`)
+		state.mu.Lock()
+		extra := state.extra
+		state.mu.Unlock()
+		io.WriteString(w, `{"data":[`+state.post(post)+`},{"slug":"second","title":"Second","publishedAt":"2026-08-01 00:00:00","category":{"slug":"software","name":"Software"}}`+extra+`],"page":1,"take":6,"total":14}`)
 	})
 	mux.HandleFunc("GET /api/posts/views", func(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"hello-world":42}`)
@@ -304,7 +309,7 @@ func TestSitemapListsPagesAndEveryPost(t *testing.T) {
 			t.Errorf("the sitemap does not list %s", want)
 		}
 	}
-	if got["https://furkanbaytekin.dev/blogs/hello-world"] != "2026-08-30" {
+	if !strings.HasPrefix(got["https://furkanbaytekin.dev/blogs/hello-world"], "2026-08-30") {
 		t.Errorf("hello-world lastmod = %q, want its update date", got["https://furkanbaytekin.dev/blogs/hello-world"])
 	}
 	if len(set.URLs) != 5 {
@@ -330,8 +335,11 @@ func TestLLMsTxt(t *testing.T) {
 
 func TestPagesAdvertiseTheFeed(t *testing.T) {
 	body := client(t).Get("/").Body
-	if !strings.Contains(body, `rel="alternate" type="application/rss+xml"`) {
-		t.Error("the page does not link its RSS feed")
+	if n := strings.Count(body, `type="application/rss+xml"`); n != 1 {
+		t.Errorf("the page links its RSS feed %d times, want once", n)
+	}
+	if !strings.Contains(body, `href="/rss"`) && !strings.Contains(body, `href="https://furkanbaytekin.dev/rss"`) {
+		t.Error("the page's feed link does not point at /rss")
 	}
 }
 
@@ -409,5 +417,26 @@ func TestWebhookAfterARestartReachesWhatWasCachedBefore(t *testing.T) {
 	webhook(after, testWebhookSecret, `{"event":"post.updated","entity":"post","slug":"hello-world","action":"updated"}`)
 	if !strings.Contains(after.Get("/blogs/hello-world").Body, "Hello Again") {
 		t.Error("the webhook did not reach a page cached before the restart")
+	}
+}
+
+// The sitemap is made once and kept; a post published in the CMS reaches it when
+// the webhook says so, not when the binary is next deployed.
+func TestWebhookRemakesTheSitemap(t *testing.T) {
+	state := fakeCMS(t)
+	c := clientOf(t, newTestApp(t))
+	if !strings.Contains(c.Get("/sitemap.xml").Body, "/blogs/hello-world</loc>") {
+		t.Fatal("the sitemap does not list the post, so this test proves nothing")
+	}
+	state.mu.Lock()
+	state.extra = `,{"slug":"third","title":"Third","publishedAt":"2026-09-01 00:00:00","category":{"slug":"software","name":"Software"}}`
+	state.mu.Unlock()
+	if strings.Contains(c.Get("/sitemap.xml").Body, "/blogs/third</loc>") {
+		t.Fatal("the sitemap was not served from the cache, so this test proves nothing")
+	}
+
+	webhook(c, testWebhookSecret, `{"event":"post.created","entity":"post","slug":"third","action":"created"}`).WantStatus(http.StatusOK)
+	if !strings.Contains(c.Get("/sitemap.xml").Body, "/blogs/third</loc>") {
+		t.Error("a post published after the sitemap was made is not in it after the webhook")
 	}
 }

@@ -11,6 +11,7 @@ import (
 	"furkanbaytekin/fragments/seo"
 
 	jsonld "github.com/Elagoht/collage-jsonld"
+	meta "github.com/Elagoht/collage-meta"
 	"github.com/Elagoht/collage/pkg/collage"
 	"golang.org/x/sync/errgroup"
 )
@@ -147,6 +148,10 @@ func (b *Blog) listData(ctx context.Context, rc *collage.RenderContext, path str
 	})
 
 	seo.Apply(rc, labels.List.SEO)
+	if path == "/blogs/search" {
+		// A search is the list, narrowed: the list is the page to index.
+		meta.Set(rc, meta.Page{Canonical: "/blogs"})
+	}
 	if err := emitBlogNode(rc, b.Store, labels.List); err != nil {
 		return listView{}, nil, err
 	}
@@ -161,7 +166,7 @@ func emitBlogNode(rc *collage.RenderContext, store *content.Store, labels conten
 	jsonld.Emit(rc, jsonld.Blog{
 		Name:        labels.SEO.Title,
 		Description: labels.Description,
-		URL:         labels.SEO.Canonical,
+		URL:         site.URL + "/blogs",
 		AuthorName:  site.Person.Name,
 		AuthorURL:   site.URL,
 	})

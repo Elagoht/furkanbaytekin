@@ -9,14 +9,15 @@ import (
 
 	"furkanbaytekin/data/blog"
 
+	sitemap "github.com/Elagoht/collage-sitemap"
 	"github.com/Elagoht/collage/pkg/collage"
 )
 
 // Webhook receives what Bloggo reports, and invalidates the cached pages the
 // change made wrong. With no secret, every request is refused.
-func Webhook(secret string, log *slog.Logger) collage.ActionHandlerFunc {
+func Webhook(secret string, log *slog.Logger, client *blog.Client) collage.ActionHandlerFunc {
 	return func(_ context.Context, rc *collage.RenderContext) (*collage.ActionResult, error) {
-		return receive(rc, secret, log)
+		return receive(rc, secret, log, client)
 	}
 }
 
@@ -37,7 +38,7 @@ type webhookResponse struct {
 	Message     string   `json:"message,omitempty"`
 }
 
-func receive(rc *collage.RenderContext, secret string, log *slog.Logger) (*collage.ActionResult, error) {
+func receive(rc *collage.RenderContext, secret string, log *slog.Logger, client *blog.Client) (*collage.ActionResult, error) {
 	given := rc.Request.Header.Get("X-Webhook-Secret")
 	if secret == "" || subtle.ConstantTimeCompare([]byte(given), []byte(secret)) != 1 {
 		log.Warn("webhook: refused", "remote", rc.Request.RemoteAddr)
@@ -50,6 +51,11 @@ func receive(rc *collage.RenderContext, secret string, log *slog.Logger) (*colla
 	}
 
 	tags := tagsFor(payload)
+	if len(tags) > 0 {
+		// The list of every post is kept for a minute; what is made again
+		// now must be made from the CMS as it is after the change.
+		client.ForgetPosts()
+	}
 	log.Info("webhook", "event", payload.Event, "invalidated", tags)
 
 	result, err := collage.JSONOf(http.StatusOK, webhookResponse{Success: true, Invalidated: tags})
@@ -63,10 +69,11 @@ func receive(rc *collage.RenderContext, secret string, log *slog.Logger) (*colla
 // tagsFor is what a change makes wrong. An entity this site does not show is
 // acknowledged and invalidates nothing: refusing it would only make Bloggo retry.
 func tagsFor(p webhookPayload) []string {
-	all := []string{blog.TagPosts, blog.TagCategories, blog.TagTags, blog.TagAuthors}
+	all := []string{blog.TagPosts, blog.TagCategories, blog.TagTags, blog.TagAuthors, sitemap.Tag}
 	switch p.Entity {
 	case "post":
-		tags := []string{blog.TagPosts}
+		// The sitemap lists every post and when it changed.
+		tags := []string{blog.TagPosts, sitemap.Tag}
 		for _, slug := range []*string{p.Slug, p.OldSlug} {
 			if slug != nil && *slug != "" {
 				tags = append(tags, blog.TagPost(*slug))

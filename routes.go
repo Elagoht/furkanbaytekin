@@ -37,25 +37,22 @@ func register(app *collage.App, src routeSources) error {
 		return fmt.Errorf("page %q: %w", "about", err)
 	}
 	posts := &blogfragments.Blog{Store: src.store, Client: src.client, Renderer: blog.NewRenderer(src.client)}
-	discovery, err := discoveryDocuments(src.store, src.client)
+	llms, err := llmsDocument(src.store, src.client)
 	if err != nil {
 		return err
 	}
 
-	items := []collage.Registrable{
+	if err := app.Register(
 		home,
 		about,
 		blogpages.List(posts),
 		blogpages.Search(posts),
 		blogpages.Post(posts),
 		actions.View(src.client),
-		actions.Webhook(src.webhookSecret, src.log),
-	}
-	for _, document := range discovery {
-		items = append(items, document)
-	}
-	items = append(items, documents.Health(), documents.Feed(src.store, src.client))
-	if err := app.Register(items...); err != nil {
+		actions.Webhook(src.webhookSecret, src.log, src.client),
+		llms,
+		documents.Health(),
+	); err != nil {
 		return err
 	}
 
@@ -67,9 +64,9 @@ func register(app *collage.App, src routeSources) error {
 	return nil
 }
 
-// discoveryDocuments is robots.txt, the sitemap and llms.txt, listing the pages
-// with a fixed path and what each says it is about.
-func discoveryDocuments(store *content.Store, client *blog.Client) ([]*collage.Document, error) {
+// llmsDocument is llms.txt, listing the pages with a fixed path and what each
+// says it is about. robots.txt, the sitemap and the feed are plugins', in main.go.
+func llmsDocument(store *content.Store, client *blog.Client) (*collage.Document, error) {
 	listed := []documents.SitePage{{Name: "Home", Path: "/"}, {Name: "About", Path: "/about"}}
 	for i, page := range listed {
 		doc, err := store.Page(strings.ToLower(page.Name))
@@ -84,5 +81,5 @@ func discoveryDocuments(store *content.Store, client *blog.Client) ([]*collage.D
 	}
 	listed = append(listed, documents.SitePage{Name: "Blog", Path: "/blogs", Description: words.List.Description})
 	discovery := &documents.Discovery{Store: store, Client: client, Pages: listed}
-	return discovery.Documents(), nil
+	return discovery.LLMs(), nil
 }

@@ -10,9 +10,9 @@ import (
 
 	"furkanbaytekin/data/blog"
 	"furkanbaytekin/data/content"
-	"furkanbaytekin/fragments/seo"
 
 	jsonld "github.com/Elagoht/collage-jsonld"
+	meta "github.com/Elagoht/collage-meta"
 	"github.com/Elagoht/collage/pkg/collage"
 )
 
@@ -73,10 +73,16 @@ func (b *Blog) postData(ctx context.Context, rc *collage.RenderContext) (postVie
 	if excerpt == "" {
 		excerpt = post.Spot
 	}
-	seo.Apply(rc, content.SEO{
-		Title:       post.Title + labels.Post.TitleSuffix,
+	rc.HoistTitle(post.Title + labels.Post.TitleSuffix)
+	meta.Set(rc, meta.Page{
+		Title:       post.Title,
 		Description: excerpt,
-		Canonical:   canonical,
+		Image:       b.Client.Asset(post.CoverImage),
+		ImageAlt:    post.Title,
+		Type:        meta.Article,
+		Published:   post.PublishedAt.Time,
+		Modified:    post.UpdatedAt.Time,
+		Author:      post.Author.Name,
 	})
 	jsonld.Emit(rc, jsonld.BlogPosting{
 		Headline:      post.Title,

@@ -32,13 +32,18 @@ import (
 	"strconv"
 	"time"
 
+	feed "github.com/Elagoht/collage-feed"
 	jsonld "github.com/Elagoht/collage-jsonld"
+	meta "github.com/Elagoht/collage-meta"
 	minimizer "github.com/Elagoht/collage-minimizer"
 	optiimage "github.com/Elagoht/collage-opti-image"
+	robots "github.com/Elagoht/collage-robots"
+	sitemap "github.com/Elagoht/collage-sitemap"
 	"github.com/Elagoht/collage/pkg/collage"
 
 	"furkanbaytekin/data/blog"
 	"furkanbaytekin/data/content"
+	"furkanbaytekin/documents"
 	"furkanbaytekin/fragments/sections"
 )
 
@@ -139,12 +144,21 @@ func newApp(devMode bool, port int) (*collage.App, error) {
 		return nil, err
 	}
 
+	// The feed, read once here: its title and description are blog.json's.
+	posts, err := documents.Feed(store, client)
+	if err != nil {
+		return nil, err
+	}
+
 	// Rendered pages and produced images live under one directory, so one
 	// setting moves or isolates both.
 	cacheDir := envString("CACHE_DIR", ".cache")
 
 	app, err := collage.New(&collage.Config{
 		DevMode: devMode,
+		// The site's public origin, from site.json: the canonical URLs, the
+		// sitemap and the feed are absolute against it.
+		BaseURL: site.URL,
 		Server: collage.ServerConfig{
 			Host: envString("HOST", "localhost"),
 			Port: port,
@@ -166,10 +180,12 @@ func newApp(devMode bool, port int) (*collage.App, error) {
 			DefaultTTL: 5 * time.Minute,
 		},
 		PluginConfig: pluginConfig,
-		// Their settings are in plugins-config.json. opti-image and minimizer
-		// have to be here rather than registered later: they mount filesystems
-		// while the application is built. jsonld reaches the document head
-		// through {{hoist "head"}} in the layout.
+		// opti-image, jsonld and minimizer take the rest of their settings
+		// from plugins-config.json. opti-image and minimizer have to be here
+		// rather than registered later: they mount filesystems while the
+		// application is built. jsonld, meta and feed reach the document head
+		// through {{hoist "head"}} in the layout. The SEO plugins take
+		// BaseURL above.
 		Plugins: []collage.Plugin{
 			optiimage.NewWith(optiimage.Config{
 				AllowedOrigins: origins,
@@ -177,6 +193,18 @@ func newApp(devMode bool, port int) (*collage.App, error) {
 			}),
 			jsonld.New(),
 			minimizer.New(),
+			meta.New(meta.Options{SiteName: site.Name, Locales: map[string]string{"en": "en_US"}}),
+			sitemap.New(sitemap.Options{
+				// Every search is a fresh render and says nothing the list
+				// does not.
+				Exclude: []string{"blogs-search"},
+				LastMod: documents.PostModified(client),
+			}),
+			robots.New(robots.Options{
+				Rules:    []robots.Rule{{Allow: []string{"/"}, Disallow: []string{"/blogs/search"}}},
+				Sitemaps: []string{site.URL + "/sitemap.xml"},
+			}),
+			feed.New(posts),
 		},
 		Security: collage.SecurityConfig{
 			// Signs the forgery tokens forms carry. Unset, one is generated
