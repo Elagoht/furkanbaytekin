@@ -193,7 +193,14 @@ func newApp(devMode bool, port int) (*collage.App, error) {
 			}),
 			jsonld.New(),
 			minimizer.New(),
-			meta.New(meta.Options{SiteName: site.Name, Locales: map[string]string{"en": "en_US"}}),
+			meta.New(meta.Options{
+				SiteName: site.Name,
+				Locales:  map[string]string{"en": "en_US"},
+				// The share card of every page without its own image: a
+				// post's cover replaces it.
+				DefaultImage:    site.Person.Image,
+				DefaultImageAlt: site.Person.Name,
+			}),
 			sitemap.New(sitemap.Options{
 				// Every search is a fresh render and says nothing the list
 				// does not.
