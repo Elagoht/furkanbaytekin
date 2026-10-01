@@ -30,7 +30,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 
 	jsonld "github.com/Elagoht/collage-jsonld"
@@ -38,12 +37,9 @@ import (
 	optiimage "github.com/Elagoht/collage-opti-image"
 	"github.com/Elagoht/collage/pkg/collage"
 
-	"furkanbaytekin/actions"
-	"furkanbaytekin/blog"
-	"furkanbaytekin/content"
-	"furkanbaytekin/documents"
+	"furkanbaytekin/data/blog"
+	"furkanbaytekin/data/content"
 	"furkanbaytekin/fragments/sections"
-	"furkanbaytekin/pages"
 )
 
 // Templates and static files are embedded, so this binary runs from anywhere:
@@ -194,55 +190,13 @@ func newApp(devMode bool, port int) (*collage.App, error) {
 		return nil, err
 	}
 
-	posts := &pages.Blog{Store: store, Client: client, Renderer: blog.NewRenderer(client)}
-
-	listed := []documents.SitePage{{Name: "Home", Path: "/"}, {Name: "About", Path: "/about"}}
-	for i, page := range listed {
-		name := strings.ToLower(page.Name)
-		doc, err := store.Page(name)
-		if err != nil {
-			return nil, err
-		}
-		listed[i].Description = doc.SEO.Description
-	}
-	blogWords, err := store.Blog()
-	if err != nil {
+	if err := register(app, routeSources{
+		store:         store,
+		client:        client,
+		webhookSecret: os.Getenv("WEBHOOK_SECRET"),
+		log:           slog.Default(),
+	}); err != nil {
 		return nil, err
-	}
-	listed = append(listed, documents.SitePage{Name: "Blog", Path: "/blogs", Description: blogWords.List.Description})
-	discovery := &documents.Discovery{Store: store, Client: client, Pages: listed}
-
-	for name, path := range map[string]string{"home": "/", "about": "/about"} {
-		page, err := pages.SectionPage(store, name, path)
-		if err != nil {
-			return nil, fmt.Errorf("page %q: %w", name, err)
-		}
-		if err := app.RegisterPage(page); err != nil {
-			return nil, fmt.Errorf("register page %q: %w", name, err)
-		}
-	}
-	for _, page := range []*collage.Page{posts.BlogsPage(), posts.SearchPage(), posts.PostPage()} {
-		if err := app.RegisterPage(page); err != nil {
-			return nil, fmt.Errorf("register page %q: %w", page.Name, err)
-		}
-	}
-	for _, action := range []*collage.Action{
-		actions.ViewAction(client),
-		actions.WebhookAction(os.Getenv("WEBHOOK_SECRET"), slog.Default()),
-	} {
-		if err := app.RegisterAction(action); err != nil {
-			return nil, fmt.Errorf("register action %q: %w", action.Name, err)
-		}
-	}
-	for _, document := range append(discovery.Documents(), documents.HealthDocument(), documents.FeedDocument(store, client)) {
-		if err := app.RegisterDocument(document); err != nil {
-			return nil, fmt.Errorf("register document %q: %w", document.Name, err)
-		}
-	}
-	// Registered rather than given a path: it is reached by failing to match.
-	// "collage export" writes it as 404.html.
-	if err := app.RegisterNotFoundPage(pages.NotFoundPage(store)); err != nil {
-		return nil, fmt.Errorf("register not-found page: %w", err)
 	}
 
 	assets, err := staticFiles(devMode)
@@ -292,7 +246,7 @@ func imageOrigins(urls ...string) ([]optiimage.Origin, error) {
 // file shows up on the next request, as a template does.
 func contentFiles(devMode bool) *content.Store {
 	if devMode {
-		if root, err := os.OpenRoot("content"); err == nil {
+		if root, err := os.OpenRoot("data/content"); err == nil {
 			return content.NewStore(root.FS())
 		}
 	}

@@ -12,7 +12,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"furkanbaytekin/content"
+	"furkanbaytekin/data/content"
 
 	"github.com/Elagoht/collage/pkg/collage"
 )

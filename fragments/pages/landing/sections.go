@@ -1,10 +1,9 @@
-package pages
+package fragments
 
 import (
 	"context"
 
-	"furkanbaytekin/content"
-	"furkanbaytekin/fragments/layouts"
+	"furkanbaytekin/data/content"
 	"furkanbaytekin/fragments/sections"
 	"furkanbaytekin/fragments/seo"
 
@@ -12,13 +11,14 @@ import (
 	"github.com/Elagoht/collage/pkg/collage"
 )
 
-// SectionPage is the page <name>.json describes, served at path.
-func SectionPage(store *content.Store, name, path string) (*collage.Page, error) {
+// Sections is the content of the page <name>.json describes: its sections, in
+// the order the file lists them, read on every render. A section type no builder
+// knows fails here, at startup, rather than on the first request.
+func Sections(store *content.Store, name string) (*collage.Fragment, error) {
 	if err := sections.Check(store, name); err != nil {
 		return nil, err
 	}
-
-	fragment := collage.NewFragment(
+	return collage.NewFragment(
 		name+"-content",
 		"pages/sections.html",
 	).WithDataHandler(collage.Effect(
@@ -27,13 +27,6 @@ func SectionPage(store *content.Store, name, path string) (*collage.Page, error)
 		}),
 	).WithSlot("sections", false, true).
 		WithSlotResolver("sections", sections.Resolver(store, name)).
-		Build()
-
-	return collage.NewPage(name).
-		WithLayouts(layouts.Layout(store)).
-		WithContent(fragment).
-		WithPath("en", path).
-		Static().
 		Build(), nil
 }
 

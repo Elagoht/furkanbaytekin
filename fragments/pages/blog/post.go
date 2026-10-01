@@ -1,4 +1,4 @@
-package pages
+package fragments
 
 import (
 	"context"
@@ -8,9 +8,8 @@ import (
 	"net/url"
 	"time"
 
-	"furkanbaytekin/blog"
-	"furkanbaytekin/content"
-	"furkanbaytekin/fragments/layouts"
+	"furkanbaytekin/data/blog"
+	"furkanbaytekin/data/content"
 	"furkanbaytekin/fragments/seo"
 
 	jsonld "github.com/Elagoht/collage-jsonld"
@@ -34,36 +33,12 @@ type postView struct {
 	Related  []card
 }
 
-// PostPage is /blogs/{slug}, cached for a few minutes. Its view count is
-// refreshed by the page's script.
-func (b *Blog) PostPage() *collage.Page {
-	content := collage.NewFragment(
+// Post is one post, read from the CMS by the request's slug.
+func (b *Blog) Post() *collage.Fragment {
+	return collage.NewFragment(
 		"blog-post-content",
 		"pages/blog-post.html",
 	).WithDataHandler(collage.DataHandler(b.postData)).Required().Build()
-
-	return collage.NewPage("blog-post").
-		WithLayouts(layouts.Layout(b.Store)).
-		WithContent(content).
-		WithPath("en", "/blogs/{slug}").
-		WithCacheParams().
-		Incremental(10 * time.Minute).
-		WithStaticParams(b.postParams).
-		Build()
-}
-
-// postParams lists the posts a static build writes a page for: every post the
-// CMS has.
-func (b *Blog) postParams(ctx context.Context, _ string) ([]map[string]string, error) {
-	posts, err := b.Client.AllPosts(ctx)
-	if err != nil {
-		return nil, err
-	}
-	params := make([]map[string]string, 0, len(posts))
-	for _, post := range posts {
-		params = append(params, map[string]string{"slug": post.Slug})
-	}
-	return params, nil
 }
 
 func (b *Blog) postData(ctx context.Context, rc *collage.RenderContext) (postView, []string, error) {

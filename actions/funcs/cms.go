@@ -1,4 +1,4 @@
-package actions
+package funcs
 
 import (
 	"context"
@@ -7,31 +7,17 @@ import (
 	"log/slog"
 	"net/http"
 
-	"furkanbaytekin/blog"
+	"furkanbaytekin/data/blog"
 
 	"github.com/Elagoht/collage/pkg/collage"
 )
 
-// WebhookAction is POST /api/webhook, where Bloggo reports every change, and
-// invalidates the cached pages the change made wrong.
-//
-// Bloggo sends the headers configured in its panel; this one expects the
-// shared secret in X-Webhook-Secret. It has no forgery check: nothing about it
-// is a browser's, and the secret is what a forgery token would have been. With
-// no secret configured, every request is refused.
-func WebhookAction(secret string, log *slog.Logger) *collage.Action {
-	if secret == "" {
-		log.Warn("webhook: WEBHOOK_SECRET is not set, so /api/webhook refuses everything")
+// Webhook receives what Bloggo reports, and invalidates the cached pages the
+// change made wrong. With no secret, every request is refused.
+func Webhook(secret string, log *slog.Logger) collage.ActionHandlerFunc {
+	return func(_ context.Context, rc *collage.RenderContext) (*collage.ActionResult, error) {
+		return receive(rc, secret, log)
 	}
-	return collage.NewAction("webhook").
-		WithPath("en", "/api/webhook").
-		WithMethods(http.MethodPost).
-		WithMaxBodyBytes(4 << 20).
-		WithoutCSRF().
-		WithHandler(func(_ context.Context, rc *collage.RenderContext) (*collage.ActionResult, error) {
-			return receive(rc, secret, log)
-		}).
-		Build()
 }
 
 // webhookPayload is what Bloggo sends. Data is the changed entity, which this

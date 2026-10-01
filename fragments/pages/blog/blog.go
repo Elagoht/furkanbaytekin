@@ -1,11 +1,11 @@
-package pages
+package fragments
 
 import (
 	"net/url"
 	"strconv"
 
-	"furkanbaytekin/blog"
-	"furkanbaytekin/content"
+	"furkanbaytekin/data/blog"
+	"furkanbaytekin/data/content"
 )
 
 // Blog is what the blog pages need: the site's words, and the CMS the posts

@@ -7,14 +7,14 @@ import (
 	"net/url"
 	"time"
 
-	"furkanbaytekin/blog"
-	"furkanbaytekin/content"
+	"furkanbaytekin/data/blog"
+	"furkanbaytekin/data/content"
 
 	"github.com/Elagoht/collage/pkg/collage"
 )
 
-// FeedDocument is /rss: the latest posts as RSS 2.0.
-func FeedDocument(store *content.Store, client *blog.Client) *collage.Document {
+// Feed is /rss: the latest posts as RSS 2.0.
+func Feed(store *content.Store, client *blog.Client) *collage.Document {
 	return collage.NewDocument("feed", "application/rss+xml; charset=utf-8").
 		WithPath("en", "/rss").
 		WithCacheParams().

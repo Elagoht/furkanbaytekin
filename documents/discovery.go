@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"furkanbaytekin/blog"
-	"furkanbaytekin/content"
+	"furkanbaytekin/data/blog"
+	"furkanbaytekin/data/content"
 
 	"github.com/Elagoht/collage/pkg/collage"
 )

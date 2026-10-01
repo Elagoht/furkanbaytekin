@@ -1,15 +1,13 @@
-package pages
+package fragments
 
 import (
 	"context"
 	"net/url"
 	"strconv"
 	"strings"
-	"time"
 
-	"furkanbaytekin/blog"
-	"furkanbaytekin/content"
-	"furkanbaytekin/fragments/layouts"
+	"furkanbaytekin/data/blog"
+	"furkanbaytekin/data/content"
 	"furkanbaytekin/fragments/seo"
 
 	jsonld "github.com/Elagoht/collage-jsonld"
@@ -38,29 +36,9 @@ type filterLink struct {
 	Active bool
 }
 
-// BlogsPage is /blogs, cached for a few minutes per page and filter.
-func (b *Blog) BlogsPage() *collage.Page {
-	return collage.NewPage("blogs").
-		WithLayouts(layouts.Layout(b.Store)).
-		WithContent(b.list("blogs-content", "/blogs")).
-		WithPath("en", "/blogs").
-		WithCacheParams("page", "category", "tag").
-		Incremental(5 * time.Minute).
-		Build()
-}
-
-// SearchPage is /blogs/search. It is never cached: its key would be whatever
-// anyone types.
-func (b *Blog) SearchPage() *collage.Page {
-	return collage.NewPage("blogs-search").
-		WithLayouts(layouts.Layout(b.Store)).
-		WithContent(b.list("blogs-search-content", "/blogs/search")).
-		WithPath("en", "/blogs/search").
-		Dynamic().
-		Build()
-}
-
-func (b *Blog) list(name, path string) *collage.Fragment {
+// List is a list of posts at path, filtered by the request's category, tag and
+// page, and by its search term at /blogs/search.
+func (b *Blog) List(name, path string) *collage.Fragment {
 	return collage.NewFragment(
 		name,
 		"pages/blogs.html",

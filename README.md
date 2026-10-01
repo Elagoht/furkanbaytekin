@@ -28,20 +28,25 @@ go test ./...
 ## What is here
 
 ```
-main.go       configuration and route registration, and the collage CLI contract
-main_test.go  the tests, driving app.Handler() with no server and no port
-content/      the site's data as JSON: site.json (header, footer, person), blog.json, one file per page
-blog/         the Bloggo CMS client and the Markdown renderer
-pages/        one file per page: layout, content, route
-fragments/    reusable pieces: the layout, SEO tags, the page sections
-actions/      POST /blogs/{slug}/view, the view counter; POST /api/webhook, Bloggo's webhook
-documents/    routes that are not HTML: /rss, /robots.txt, /sitemap.xml, /llms.txt, and /healthz
-templates/    the HTML, one file per fragment
-static/       CSS, icons and the web manifest, at /static/
+main.go                     configuration, the plugins, the static mount, and the collage CLI contract
+routes.go                   every page, document and action, in one app.Register call
+main_test.go, blog_test.go  the tests, driving app.Handler() with no server and no port
+data/content/               the site's data as JSON: site.json (header, footer, person), blog.json, one file per page
+data/blog/                  the Bloggo CMS client and the Markdown renderer
+pages/<area>/               one file per page: its layout, content, path and caching
+fragments/pages/<area>/     each page's content and the data it reads, mirroring pages/
+fragments/layouts/          Master(), the shell every page renders inside
+fragments/sections/         the blocks a section page is made of; fragments/seo, its head tags
+actions/                    POST /blogs/{slug}/view and POST /api/webhook; their handlers in actions/funcs/
+documents/                  routes that are not HTML: /rss, /robots.txt, /sitemap.xml, /llms.txt, and /healthz
+templates/                  the HTML, one file per fragment
+static/                     CSS, icons and the web manifest, at /static/
 ```
 
-Every page is a JSON file in `content/` — `/` is `home.json`, `/about` is
-`about.json` — registered in `main.go` with its path, and declared `Static()`,
+The areas are `landing` (`/`, `/about`), `blog` and `errors` (the not-found page).
+
+Every page is a JSON file in `data/content/` — `/` is `home.json`, `/about` is
+`about.json` — given its path in `pages/landing/` and registered in `routes.go`, and declared `Static()`,
 so `collage export` writes it to a file. Each entry of a page's `sections` is
 one fragment from `fragments/sections/`, with its template in
 `templates/fragments/sections/` and its stylesheet in `static/sections/`:
@@ -71,7 +76,7 @@ sections are read from its JSON on every render.
 Posts come live from the Bloggo CMS at `BLOG_API_URL`, authenticated with
 `BLOG_TRUSTED_FRONTEND_KEY` in the `x-trusted-frontend` header — both from the
 environment (see `.env.example`), and the key never leaves the server. The
-words around the posts are in `content/blog.json`.
+words around the posts are in `data/content/blog.json`.
 
 | route | what it is | cached |
 | --- | --- | --- |

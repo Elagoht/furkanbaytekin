@@ -1,6 +1,6 @@
 package sections
 
-import "furkanbaytekin/content"
+import "furkanbaytekin/data/content"
 
 type heroView struct {
 	Avatar  image          `json:"avatar"`

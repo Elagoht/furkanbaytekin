@@ -9,7 +9,8 @@ import (
 	"github.com/Elagoht/collage/pkg/collage"
 )
 
-func HealthDocument() *collage.Document {
+// Health is /healthz: the process is up and answering.
+func Health() *collage.Document {
 	return collage.NewDocument("health", "application/json").
 		WithPath("en", "/healthz").
 		WithHandler(sayOk).

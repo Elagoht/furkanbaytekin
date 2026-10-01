@@ -5,7 +5,7 @@
 package seo
 
 import (
-	"furkanbaytekin/content"
+	"furkanbaytekin/data/content"
 
 	"github.com/Elagoht/collage/pkg/collage"
 )

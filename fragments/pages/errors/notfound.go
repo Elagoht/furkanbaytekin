@@ -1,17 +1,17 @@
-package pages
+package fragments
 
 import (
 	"context"
 
-	"furkanbaytekin/content"
-	"furkanbaytekin/fragments/layouts"
+	"furkanbaytekin/data/content"
 	"furkanbaytekin/fragments/seo"
 
 	"github.com/Elagoht/collage/pkg/collage"
 )
 
-func NotFoundPage(store *content.Store) *collage.Page {
-	fragment := collage.NewFragment(
+// NotFound is what an unknown address answers with, from site.json.
+func NotFound(store *content.Store) *collage.Fragment {
+	return collage.NewFragment(
 		"not-found-content",
 		"pages/404.html",
 	).WithDataHandler(collage.DataHandler(
@@ -24,10 +24,4 @@ func NotFoundPage(store *content.Store) *collage.Page {
 			return site.NotFound, nil, nil
 		}),
 	).Build()
-
-	return collage.NewPage("not-found").
-		WithLayouts(layouts.Layout(store)).
-		WithContent(fragment).
-		Dynamic().
-		Build()
 }

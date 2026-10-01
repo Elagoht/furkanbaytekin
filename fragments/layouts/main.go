@@ -6,15 +6,15 @@ import (
 	"strings"
 	"time"
 
-	"furkanbaytekin/content"
+	"furkanbaytekin/data/content"
 	"furkanbaytekin/fragments/seo"
 
 	"github.com/Elagoht/collage/pkg/collage"
 )
 
-// Layout is the page shell: the head, the header and the footer, all from
+// Master is the page shell: the head, the header and the footer, all from
 // site.json.
-func Layout(store *content.Store) *collage.Fragment {
+func Master(store *content.Store) *collage.Fragment {
 	return collage.NewFragment("layout", "layouts/default.html").
 		WithSlot("content", true, false).
 		WithDataHandler(collage.DataHandler(func(_ context.Context, rc *collage.RenderContext) (content.Site, []string, error) {
