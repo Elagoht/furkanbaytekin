@@ -82,6 +82,18 @@ func main() {
 		log.Fatalf("furkanbaytekin: %v", err)
 	}
 
+	// A word after the flags is a command: a plugin's, or collage's own
+	// collage-inspect and collage-check, which "collage inspect" and "collage
+	// check" run as `go run . <command>`. A word nobody claims is a usage error
+	// rather than a server started by accident.
+	if args := flag.Args(); len(args) > 0 {
+		code, err := collage.DispatchCommands(context.Background(), app, args)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "furkanbaytekin: %v\n", err)
+		}
+		os.Exit(code)
+	}
+
 	if *buildFlag {
 		if err := staticBuild(app, *outFlag, *cleanFlag); err != nil {
 			log.Fatalf("furkanbaytekin: static build: %v", err)

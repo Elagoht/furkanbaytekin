@@ -26,7 +26,7 @@ func NotFoundPage(store *content.Store) *collage.Page {
 	).Build()
 
 	return collage.NewPage("not-found").
-		WithLayout(layouts.Layout(store)).
+		WithLayouts(layouts.Layout(store)).
 		WithContent(fragment).
 		Dynamic().
 		Build()

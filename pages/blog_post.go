@@ -43,7 +43,7 @@ func (b *Blog) PostPage() *collage.Page {
 	).WithDataHandler(collage.DataHandler(b.postData)).Required().Build()
 
 	return collage.NewPage("blog-post").
-		WithLayout(layouts.Layout(b.Store)).
+		WithLayouts(layouts.Layout(b.Store)).
 		WithContent(content).
 		WithPath("en", "/blogs/{slug}").
 		WithCacheParams().

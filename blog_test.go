@@ -214,20 +214,30 @@ func TestUnknownPostIsNotFound(t *testing.T) {
 }
 
 // A slug that could resolve to another CMS endpoint is refused before any
-// request, and a CMS redirect is never followed with the key.
+// request, and a CMS redirect is never followed with the key. A dot segment never
+// reaches the page at all: collage redirects it to its clean spelling first, which
+// for /blogs/.. is the home page.
 func TestOddSlugsNeverReachTheCMS(t *testing.T) {
 	state := fakeCMS(t)
 	app, err := newApp(false, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, target := range []string{"/blogs/..", "/blogs/%2E%2E", "/blogs/..%2Fcategories", "/blogs/a.b"} {
+	for target, want := range map[string]int{
+		"/blogs/..":              http.StatusMovedPermanently,
+		"/blogs/%2E%2E":          http.StatusMovedPermanently,
+		"/blogs/..%2Fcategories": http.StatusNotFound,
+		"/blogs/a.b":             http.StatusNotFound,
+	} {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.URL.RawPath, req.URL.Path = target, strings.ReplaceAll(strings.ReplaceAll(target, "%2E", "."), "%2F", "/")
 		rec := httptest.NewRecorder()
 		app.Handler().ServeHTTP(rec, req)
-		if rec.Code != http.StatusNotFound {
-			t.Errorf("GET %s = %d, want 404", target, rec.Code)
+		if rec.Code != want {
+			t.Errorf("GET %s = %d, want %d", target, rec.Code, want)
+		}
+		if want == http.StatusMovedPermanently && rec.Header().Get("Location") != "/" {
+			t.Errorf("GET %s redirects to %q, want /", target, rec.Header().Get("Location"))
 		}
 	}
 	state.mu.Lock()

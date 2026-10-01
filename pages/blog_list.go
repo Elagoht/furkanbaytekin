@@ -41,7 +41,7 @@ type filterLink struct {
 // BlogsPage is /blogs, cached for a few minutes per page and filter.
 func (b *Blog) BlogsPage() *collage.Page {
 	return collage.NewPage("blogs").
-		WithLayout(layouts.Layout(b.Store)).
+		WithLayouts(layouts.Layout(b.Store)).
 		WithContent(b.list("blogs-content", "/blogs")).
 		WithPath("en", "/blogs").
 		WithCacheParams("page", "category", "tag").
@@ -53,7 +53,7 @@ func (b *Blog) BlogsPage() *collage.Page {
 // anyone types.
 func (b *Blog) SearchPage() *collage.Page {
 	return collage.NewPage("blogs-search").
-		WithLayout(layouts.Layout(b.Store)).
+		WithLayouts(layouts.Layout(b.Store)).
 		WithContent(b.list("blogs-search-content", "/blogs/search")).
 		WithPath("en", "/blogs/search").
 		Dynamic().

@@ -30,7 +30,7 @@ func SectionPage(store *content.Store, name, path string) (*collage.Page, error)
 		Build()
 
 	return collage.NewPage(name).
-		WithLayout(layouts.Layout(store)).
+		WithLayouts(layouts.Layout(store)).
 		WithContent(fragment).
 		WithPath("en", path).
 		Static().
