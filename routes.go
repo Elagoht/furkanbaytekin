@@ -48,6 +48,7 @@ func register(app *collage.App, src routeSources) error {
 		blogpages.List(posts),
 		blogpages.Search(posts),
 		blogpages.Post(posts),
+		blogpages.PostMarkdown(posts),
 		actions.View(src.client),
 		actions.Webhook(src.webhookSecret, src.log, src.client),
 		llms,

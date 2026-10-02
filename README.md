@@ -125,6 +125,7 @@ words around the posts are in `data/content/blog.json`.
 | `/blogs` | the list, with category and tag filters and pages | 5 minutes, per `page`, `category`, `tag` |
 | `/blogs/search?search=` | the same list, searched | never: its key would be whatever anyone types |
 | `/blogs/{slug}` | a post: Markdown with highlighted code, a table of contents, related posts | 10 minutes |
+| `/blogs/{slug}.md` | the same post as Markdown: its properties as YAML front matter (title, description, url, author, category, tags, dates, read time, cover), then the body as the CMS holds it, with its images and uploads made absolute; the page links it with `rel="alternate"` | 10 minutes, dropped with the page |
 | `/blogs/{slug}/view` | POST: counts a view in the CMS, answers `{"views": n}` | — |
 | `/rss` | [elagoht/feed](https://github.com/Elagoht/collage-feed): the latest posts as RSS 2.0, linked from every page's head | until a post changes |
 | `/sitemap.xml` | [elagoht/sitemap](https://github.com/Elagoht/collage-sitemap): every page but search, and every post with its update date | until a post changes |

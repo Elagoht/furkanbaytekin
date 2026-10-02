@@ -76,6 +76,11 @@ func (b *Blog) postData(ctx context.Context, rc *collage.RenderContext) (postVie
 		excerpt = post.Spot
 	}
 	rc.HoistTitle(post.Title + labels.Post.TitleSuffix)
+	// The same post as Markdown, for a reader that wants the text alone.
+	if markdown, err := rc.URL("blog-post-md", map[string]string{"slug": post.Slug}); err == nil {
+		rc.Hoist("head", "link:alternate:markdown", template.HTML(
+			`<link rel="alternate" type="text/markdown" href="`+template.HTMLEscapeString(markdown)+`">`))
+	}
 	meta.Set(rc, meta.Page{
 		Title:       post.Title,
 		Description: excerpt,

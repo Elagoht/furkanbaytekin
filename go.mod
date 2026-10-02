@@ -3,7 +3,7 @@ module furkanbaytekin
 go 1.26.0
 
 require (
-	github.com/Elagoht/collage v0.40.0
+	github.com/Elagoht/collage v0.41.0
 	github.com/Elagoht/collage-feed v0.1.2
 	github.com/Elagoht/collage-jsonld v0.2.5
 	github.com/Elagoht/collage-meta v0.1.4

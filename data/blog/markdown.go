@@ -3,6 +3,7 @@ package blog
 import (
 	"bytes"
 	"html/template"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -117,4 +118,83 @@ func plainText(node ast.Node, src []byte) string {
 		return ast.WalkContinue, nil
 	})
 	return b.String()
+}
+
+// Source returns a post's Markdown as it should be read on its own: every image,
+// and every link to an upload, made absolute against the CMS, as Render makes
+// them, since a relative "/uploads/..." means nothing away from it.
+//
+// The destinations are found by parsing and replaced where the source spells
+// them — "](dest" in an inline link, "]: dest" in a reference definition — outside
+// code, which shows Markdown rather than being it; the rest of the text is
+// unchanged.
+func (r *Renderer) Source(source string) (string, error) {
+	src := []byte(source)
+	doc := r.md.Parser().Parse(text.NewReader(src))
+	rewrite := map[string]string{}
+	var code []text.Segment
+	err := ast.Walk(doc, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
+		if !entering {
+			return ast.WalkContinue, nil
+		}
+		var dest string
+		switch n := node.(type) {
+		case *ast.FencedCodeBlock, *ast.CodeBlock:
+			lines := n.Lines()
+			for i := range lines.Len() {
+				code = append(code, lines.At(i))
+			}
+			return ast.WalkSkipChildren, nil
+		case *ast.CodeSpan:
+			for c := n.FirstChild(); c != nil; c = c.NextSibling() {
+				if t, ok := c.(*ast.Text); ok {
+					code = append(code, t.Segment)
+				}
+			}
+			return ast.WalkSkipChildren, nil
+		case *ast.Image:
+			dest = string(n.Destination)
+		case *ast.Link:
+			if !strings.HasPrefix(string(n.Destination), "/uploads/") {
+				return ast.WalkContinue, nil
+			}
+			dest = string(n.Destination)
+		default:
+			return ast.WalkContinue, nil
+		}
+		if absolute := r.client.Asset(dest); absolute != dest {
+			rewrite[dest] = absolute
+		}
+		return ast.WalkContinue, nil
+	})
+	if err != nil {
+		return "", err
+	}
+	if len(rewrite) == 0 {
+		return source, nil
+	}
+	pairs := make([]string, 0, len(rewrite)*6)
+	for dest, absolute := range rewrite {
+		pairs = append(pairs,
+			"]("+dest, "]("+absolute,
+			"](<"+dest, "](<"+absolute,
+			"]: "+dest, "]: "+absolute,
+		)
+	}
+	replacer := strings.NewReplacer(pairs...)
+
+	// The text between the code, replaced; the code, as it is.
+	slices.SortFunc(code, func(a, b text.Segment) int { return a.Start - b.Start })
+	var out strings.Builder
+	at := 0
+	for _, seg := range code {
+		if seg.Start < at {
+			continue
+		}
+		out.WriteString(replacer.Replace(source[at:seg.Start]))
+		out.WriteString(source[seg.Start:seg.Stop])
+		at = seg.Stop
+	}
+	out.WriteString(replacer.Replace(source[at:]))
+	return out.String(), nil
 }

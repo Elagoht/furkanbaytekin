@@ -16,33 +16,68 @@
     ]
   },
   "nav": [
-    { "label": "About", "icon": "user", "href": "/about" },
-    { "label": "Blogs", "icon": "article", "href": "/blogs" }
+    {
+      "label": "About",
+      "icon": "user",
+      "href": "/about"
+    },
+    {
+      "label": "Blogs",
+      "icon": "article",
+      "href": "/blogs"
+    }
   ],
   "footer": {
     "groups": [
       {
         "title": "Direct Message",
         "links": [
-          { "label": "Telegram", "href": "https://t.me/furkanbytekin" },
-          { "label": "Send Email", "href": "mailto:furkan@baytekin.dev" },
-          { "label": "LinkedIn", "href": "https://linkedin.com/in/furkan-baytekin" }
+          {
+            "label": "Telegram",
+            "href": "https://t.me/furkanbytekin"
+          },
+          {
+            "label": "Send Email",
+            "href": "mailto:furkan@baytekin.dev"
+          },
+          {
+            "label": "LinkedIn",
+            "href": "https://linkedin.com/in/furkan-baytekin"
+          }
         ]
       },
       {
         "title": "Social Media",
         "links": [
-          { "label": "X", "href": "https://x.com/furkanbytekin" },
-          { "label": "Reddit", "href": "https://reddit.com/u/furkanbytekin" },
-          { "label": "Spotify", "href": "https://open.spotify.com/user/furkanbytekin" }
+          {
+            "label": "X",
+            "href": "https://x.com/furkanbytekin"
+          },
+          {
+            "label": "Reddit",
+            "href": "https://reddit.com/u/furkanbytekin"
+          },
+          {
+            "label": "Spotify",
+            "href": "https://open.spotify.com/user/furkanbytekin"
+          }
         ]
       },
       {
         "title": "My Productive Hours",
         "links": [
-          { "label": "YouTube", "href": "https://youtube.com/@furkanbytekin" },
-          { "label": "GitHub", "href": "https://github.com/Elagoht" },
-          { "label": "RSS", "href": "/rss" }
+          {
+            "label": "YouTube",
+            "href": "https://youtube.com/@furkanbytekin"
+          },
+          {
+            "label": "GitHub",
+            "href": "https://github.com/Elagoht"
+          },
+          {
+            "label": "RSS",
+            "href": "/rss"
+          }
         ]
       }
     ],
@@ -54,8 +89,16 @@
     "heading": "Page not found",
     "message": "The page you're looking for doesn't exist or has been moved.",
     "actions": [
-      { "label": "Back to Home", "href": "/", "variant": "primary" },
-      { "label": "Blogs", "href": "/blogs", "variant": "ghost" }
+      {
+        "label": "Back to Home",
+        "href": "/",
+        "variant": "primary"
+      },
+      {
+        "label": "Blogs",
+        "href": "/blogs",
+        "variant": "ghost"
+      }
     ]
   }
 }

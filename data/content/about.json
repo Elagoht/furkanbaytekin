@@ -5,7 +5,18 @@
   },
   "person": {
     "description": "Product-oriented developer who owns end-to-end systems from architecture to production. Designs and implements high-performance RESTful APIs and backend services with authentication, caching, validation, and database integration in Go and Node.js. Builds cost-efficient modular monoliths and multi-tenant platforms on Linux. Active technical content creator with 160+ published blog posts, 90+ YouTube videos, and a Udemy course. Strong communication from language education background bridges tech and non-tech staff.",
-    "knowsAbout": ["Go", "TypeScript", "JavaScript", "React", "Next.js", "Docker", "PostgreSQL", "Redis", "System Design", "CI/CD"]
+    "knowsAbout": [
+      "Go",
+      "TypeScript",
+      "JavaScript",
+      "React",
+      "Next.js",
+      "Docker",
+      "PostgreSQL",
+      "Redis",
+      "System Design",
+      "CI/CD"
+    ]
   },
   "sections": [
     {
@@ -21,15 +32,36 @@
         "text": "Product-oriented developer who owns end-to-end systems from architecture to production. Designs and implements high-performance RESTful APIs and backend services with authentication, caching, validation, and database integration in Go and Node.js. Builds cost-efficient modular monoliths and multi-tenant platforms on Linux. Active technical content creator with 160+ published blog posts, 90+ YouTube videos, and a Udemy course. Strong communication from language education background bridges tech and non-tech staff."
       }
     },
-    { "type": "separator" },
+    {
+      "type": "separator"
+    },
     {
       "type": "chips",
       "data": {
         "label": "Languages",
-        "items": ["Go", "TypeScript", "JavaScript", "C#", "Python", "Bash", "SQL", "GraphQL", "HTML", "CSS", "GDScript", "AWK", "MDX", "Roff", "Pug", "Lua"]
+        "items": [
+          "Go",
+          "TypeScript",
+          "JavaScript",
+          "C#",
+          "Python",
+          "Bash",
+          "SQL",
+          "GraphQL",
+          "HTML",
+          "CSS",
+          "GDScript",
+          "AWK",
+          "MDX",
+          "Roff",
+          "Pug",
+          "Lua"
+        ]
       }
     },
-    { "type": "separator" },
+    {
+      "type": "separator"
+    },
     {
       "type": "stack",
       "data": {
@@ -37,32 +69,80 @@
         "groups": [
           {
             "title": "Frontend",
-            "items": ["Next.js", "React.js", "Solid.js", "Zustand", "Redux", "Tailwind CSS", "SASS"]
+            "items": [
+              "Next.js",
+              "React.js",
+              "Solid.js",
+              "Zustand",
+              "Redux",
+              "Tailwind CSS",
+              "SASS"
+            ]
           },
           {
             "title": "Backend",
-            "items": ["Go (Chi, Concurrency, Middleware)", "Nest.js (REST APIs)", "Node.js (Express.js)", "Django", "Flask", "Strapi (Headless CMS)"]
+            "items": [
+              "Go (Chi, Concurrency, Middleware)",
+              "Nest.js (REST APIs)",
+              "Node.js (Express.js)",
+              "Django",
+              "Flask",
+              "Strapi (Headless CMS)"
+            ]
           },
           {
             "title": "Infra & DevOps",
-            "items": ["Docker", "GitHub Actions", "GitLab CI", "Systemd", "Caddy", "Nginx", "Cloudflare", "Monitoring & Statistics", "Backups"]
+            "items": [
+              "Docker",
+              "GitHub Actions",
+              "GitLab CI",
+              "Systemd",
+              "Caddy",
+              "Nginx",
+              "Cloudflare",
+              "Monitoring & Statistics",
+              "Backups"
+            ]
           },
           {
             "title": "Databases",
-            "items": ["SQLite", "PostgreSQL", "Redis", "MYSQL", "MSSQL", "MongoDB"]
+            "items": [
+              "SQLite",
+              "PostgreSQL",
+              "Redis",
+              "MYSQL",
+              "MSSQL",
+              "MongoDB"
+            ]
           },
           {
             "title": "Test & Automation",
-            "items": ["Go Test", "Jest", "Selenium"]
+            "items": [
+              "Go Test",
+              "Jest",
+              "Selenium"
+            ]
           },
           {
             "title": "API & Backend Concepts",
-            "items": ["HTTP", "OAuth2", "JWT (RSA, JWKS)", "Input Validation", "API Versioning", "REST API & CRUD", "RBAC & API Security", "Rate Limiting", "Swagger / Postman"]
+            "items": [
+              "HTTP",
+              "OAuth2",
+              "JWT (RSA, JWKS)",
+              "Input Validation",
+              "API Versioning",
+              "REST API & CRUD",
+              "RBAC & API Security",
+              "Rate Limiting",
+              "Swagger / Postman"
+            ]
           }
         ]
       }
     },
-    { "type": "separator" },
+    {
+      "type": "separator"
+    },
     {
       "type": "expertise",
       "data": {
@@ -81,7 +161,9 @@
         ]
       }
     },
-    { "type": "separator" },
+    {
+      "type": "separator"
+    },
     {
       "type": "experience",
       "data": {
@@ -91,25 +173,41 @@
             "title": "Developer",
             "company": "UNOG",
             "date": "Sep 2026 - Present",
-            "points": []
+            "points": [
+              "Developed open source Team Task Manager and implemented to Authentik to use among team members country wide."
+            ]
           },
           {
             "title": "Event Coordinator & Developer",
             "company": "Godot OGT",
             "date": "Jul 2026 - Present",
-            "points": []
+            "points": [
+              "Organized and moderated events with team members for community.",
+              "Developed CMS and web playable game upload system, managed server and network."
+            ]
           },
           {
             "title": "Software Specialist",
-            "company": "IC HOLDİNG",
+            "company": "IC HOLDING",
             "date": "Mar 2026 - Present",
-            "points": []
+            "points": [
+              "Writing inhouse projects, managing server, creating improved UX for colleagues."
+            ]
           },
           {
             "title": "Product Owner & Software Architect",
             "company": "Oyun Sektörü Etkinlikleri",
             "date": "Jan 2026 - Present",
-            "points": []
+            "points": [
+              "Architected the whole platform (**Go backend**, **Go CMS**, public website, **React Native** mobile app and **React** web app) to run on a **single Linux server with 1 vCPU, 2GB RAM and 20GB storage**.",
+              "Designed authentication with **Google and Apple OAuth**, **JWKS**-verified tokens, **Bearer** auth for mobile, **cookie** auth for web, and **Redis**-backed refresh tokens.",
+              "Secured traffic between the website, CMS and backend with **IP whitelisting**, **CORS protection** and an **X-Secret-Key** header.",
+              "Stored users and events in **PostgreSQL**, CMS content in **SQLite**, and cached events in **Redis**.",
+              "Served all traffic through **Cloudflare Tunnel** and the **Caddy** reverse proxy.",
+              "Set up a **GitHub Actions** pipeline that pushes built versions to a deploy script for **systemd-based Blue/Green** zero-downtime releases.",
+              "Automated **encrypted rsync backups** to an off-site backup server with a cron job, and archived old logs as **gzipped JSONL**.",
+              "Integrated **AWS SES** for transactional email."
+            ]
           },
           {
             "title": "Lead Product Developer",
@@ -153,7 +251,9 @@
         ]
       }
     },
-    { "type": "separator" },
+    {
+      "type": "separator"
+    },
     {
       "type": "education",
       "data": {

@@ -236,6 +236,10 @@ func TestOddSlugsNeverReachTheCMS(t *testing.T) {
 		"/blogs/%2E%2E":          http.StatusMovedPermanently,
 		"/blogs/..%2Fcategories": http.StatusNotFound,
 		"/blogs/a.b":             http.StatusNotFound,
+		// The Markdown is a second way to the CMS, behind the same refusal.
+		"/blogs/a.b.md":             http.StatusNotFound,
+		"/blogs/..%2Fcategories.md": http.StatusNotFound,
+		"/blogs/...md":              http.StatusNotFound,
 	} {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.URL.RawPath, req.URL.Path = target, strings.ReplaceAll(strings.ReplaceAll(target, "%2E", "."), "%2F", "/")
