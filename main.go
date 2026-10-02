@@ -46,6 +46,7 @@ import (
 	"furkanbaytekin/data/content"
 	"furkanbaytekin/documents"
 	"furkanbaytekin/fragments/sections"
+	blogpages "furkanbaytekin/pages/blog"
 )
 
 // Templates and static files are embedded, so this binary runs from anywhere:
@@ -265,6 +266,11 @@ func newApp(devMode bool, port int) (*collage.App, error) {
 		log:           slog.Default(),
 	}); err != nil {
 		return nil, err
+	}
+
+	// A post's Markdown names the post's page as its canonical address.
+	if err := app.Use(blogpages.MarkdownCanonical(site.URL)); err != nil {
+		return nil, fmt.Errorf("markdown canonical: %w", err)
 	}
 
 	if err := app.Mount("/static/", assets); err != nil {

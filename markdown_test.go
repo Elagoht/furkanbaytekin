@@ -59,6 +59,25 @@ func TestPostLinksItsMarkdownAndTheWebhookDropsIt(t *testing.T) {
 	}
 }
 
+// The Markdown names the page as its canonical address, so a search engine
+// indexes the post once; a 404 names nothing.
+func TestPostMarkdownNamesThePageCanonical(t *testing.T) {
+	c := client(t)
+	res := c.Get("/blogs/hello-world.md").WantStatus(http.StatusOK)
+	if got := res.Header.Get("Link"); got != `<https://furkanbaytekin.dev/blogs/hello-world>; rel="canonical"` {
+		t.Errorf("Link = %q", got)
+	}
+	// From the cache too, where the response is not rendered again.
+	if got := c.Get("/blogs/hello-world.md").Header.Get("Link"); got == "" {
+		t.Error("a cached Markdown response has no Link")
+	}
+	for _, path := range []string{"/blogs/missing.md", "/blogs/hello-world", "/llms.txt"} {
+		if got := c.Get(path).Header.Get("Link"); strings.Contains(got, "canonical") {
+			t.Errorf("GET %s: Link = %q", path, got)
+		}
+	}
+}
+
 func TestUnknownPostAsMarkdownIsNotFound(t *testing.T) {
 	c := client(t)
 	c.Get("/blogs/missing.md").WantStatus(http.StatusNotFound)

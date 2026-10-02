@@ -39,7 +39,7 @@ func (d *Discovery) LLMs() *collage.Document {
 }
 
 // llms is /llms.txt, after llmstxt.org: who the site is about, its pages, and
-// every post, as Markdown links.
+// every post, linked as Markdown.
 func (d *Discovery) llms(ctx context.Context, _ *collage.RenderContext) ([]byte, []string, error) {
 	site, err := d.Store.Site()
 	if err != nil {
@@ -62,8 +62,10 @@ func (d *Discovery) llms(ctx context.Context, _ *collage.RenderContext) ([]byte,
 	}
 
 	b.WriteString("\n## Blog posts\n\n")
+	// Each post as Markdown, as llmstxt.org asks: the text alone, with its
+	// properties in front matter. The page is its canonical address.
 	for _, post := range posts {
-		link(&b, post.Title, postURL(site, post), post.Description)
+		link(&b, post.Title, postURL(site, post)+".md", post.Description)
 	}
 
 	b.WriteString("\n## Optional\n\n")

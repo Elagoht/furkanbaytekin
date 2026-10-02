@@ -345,7 +345,7 @@ func TestLLMsTxt(t *testing.T) {
 		"## Pages",
 		"- [About](https://furkanbaytekin.dev/about): ",
 		"## Blog posts",
-		"- [Hello World](https://furkanbaytekin.dev/blogs/hello-world): The first post.",
+		"- [Hello World](https://furkanbaytekin.dev/blogs/hello-world.md): The first post.",
 		"- [RSS feed](https://furkanbaytekin.dev/rss)",
 	} {
 		if !strings.Contains(body, want) {
