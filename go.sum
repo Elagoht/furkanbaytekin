@@ -8,8 +8,8 @@ github.com/Elagoht/collage-meta v0.1.4 h1:HIYFPWRI058ub7z7gbtrXvqS1gQypWjtyjxy/9
 github.com/Elagoht/collage-meta v0.1.4/go.mod h1:92RYfQeSFIZTlqcrBZ1IF4Xdfgd4isV0a50O5RjRAr4=
 github.com/Elagoht/collage-minimizer v0.1.7 h1:w+MH7qOOrM2LCkWBivhj7S4nTr5f/DvCEjh/24UrRLk=
 github.com/Elagoht/collage-minimizer v0.1.7/go.mod h1:ewjXk1tSNNhcMqxbXEX4dPFybzwNQwVwTxtvx3O7n74=
-github.com/Elagoht/collage-ogimage v0.1.1 h1:snoDl5D/Un6oOe5F2P/AyhtoNpR5bcPeUCEbcyq1+Pg=
-github.com/Elagoht/collage-ogimage v0.1.1/go.mod h1:ItuuMxQfUQFulA0zkLFDzgwWE+e5CTPQYAdooFKkgf8=
+github.com/Elagoht/collage-ogimage v0.1.2 h1:qeWaeO7a/otCS4RfHOstR79ZUbqC5GJLAQOoISd+tuQ=
+github.com/Elagoht/collage-ogimage v0.1.2/go.mod h1:ItuuMxQfUQFulA0zkLFDzgwWE+e5CTPQYAdooFKkgf8=
 github.com/Elagoht/collage-opti-image v0.2.4 h1:rgN+2ynoLkGBVJL7DmvBNe0mbBy1/LFvqj1Z6v0NwO0=
 github.com/Elagoht/collage-opti-image v0.2.4/go.mod h1:Uv3xejvO0xnWsXY/24AvpL9aUqE7zt6Jama0FBePDCc=
 github.com/Elagoht/collage-robots v0.1.2 h1:Arn5MKwN/ys61CAvOgXxbCkyQMBIN43TUjrmgb2GUqA=
