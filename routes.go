@@ -45,6 +45,7 @@ func register(app *collage.App, src routeSources) error {
 	if err := app.Register(
 		home,
 		about,
+		landingpages.AboutMarkdown(src.store),
 		blogpages.List(posts),
 		blogpages.Search(posts),
 		blogpages.Post(posts),
@@ -66,9 +67,9 @@ func register(app *collage.App, src routeSources) error {
 }
 
 // llmsDocument is llms.txt, listing the pages with a fixed path and what each
-// says it is about. robots.txt, the sitemap and the feed are plugins', in main.go.
+// says it is about — as Markdown where the page has it. robots.txt, the sitemap and the feed are plugins', in main.go.
 func llmsDocument(store *content.Store, client *blog.Client) (*collage.Document, error) {
-	listed := []documents.SitePage{{Name: "Home", Path: "/"}, {Name: "About", Path: "/about"}}
+	listed := []documents.SitePage{{Name: "Home", Path: "/"}, {Name: "About", Path: "/about.md"}}
 	for i, page := range listed {
 		doc, err := store.Page(strings.ToLower(page.Name))
 		if err != nil {

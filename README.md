@@ -43,6 +43,8 @@ templates/                  the HTML, one file per fragment; templates/og/, the 
 static/                     CSS, icons and the web manifest, at /static/
 fonts/                      Outfit as TrueType, which the share cards are drawn in (OFL.txt)
 og_test.go                  the share cards' tests
+frontmatter/                the YAML front matter a page's or a post's .md opens with
+canonical.go                the Link header naming a page canonical for its .md
 ```
 
 The areas are `landing` (`/`, `/about`), `blog` and `errors` (the not-found page).
@@ -67,6 +69,15 @@ one fragment from `fragments/sections/`, with its template in
 | `separator` | a hairline, no data |
 
 The not-found page's words are `site.json`'s `notFound`.
+
+`/about.md` is `/about` as Markdown, for a reader that wants the text alone: its
+`seo` title and description and its address as front matter, then each section
+written by its type (`fragments/sections/markdown.go`) — a list for chips and
+stacks, a heading per job — with no separators. A section type has to say how it
+is written as Markdown to compile at all. The page links it with
+`rel="alternate"`, it names the page as canonical in a `Link` header
+(`canonical.go`, as a post's `.md` does), and llms.txt links it. Another section
+page gets one by registering `sectionMarkdown` for it in `pages/landing/`.
 
 A page's optional `person` block adds a schema.org `Person` to its head, with
 site.json's person as the base. Editing a section's data shows up on reload
@@ -125,7 +136,7 @@ words around the posts are in `data/content/blog.json`.
 | `/blogs` | the list, with category and tag filters and pages | 5 minutes, per `page`, `category`, `tag` |
 | `/blogs/search?search=` | the same list, searched | never: its key would be whatever anyone types |
 | `/blogs/{slug}` | a post: Markdown with highlighted code, a table of contents, related posts | 10 minutes |
-| `/blogs/{slug}.md` | the same post as Markdown: its properties as YAML front matter (title, description, url, author, category, tags, dates, read time, cover), then the body as the CMS holds it, with its images and uploads made absolute; the page links it with `rel="alternate"`, and it names the page as canonical in a `Link` header (`pages/blog/canonical.go`), so a search engine indexes the post once | 10 minutes, dropped with the page |
+| `/blogs/{slug}.md` | the same post as Markdown: its properties as YAML front matter (title, description, url, author, category, tags, dates, read time, cover), then the body as the CMS holds it, with its images and uploads made absolute; the page links it with `rel="alternate"`, and it names the page as canonical in a `Link` header (`canonical.go`), so a search engine indexes the post once | 10 minutes, dropped with the page |
 | `/blogs/{slug}/view` | POST: counts a view in the CMS, answers `{"views": n}` | — |
 | `/rss` | [elagoht/feed](https://github.com/Elagoht/collage-feed): the latest posts as RSS 2.0, linked from every page's head | until a post changes |
 | `/sitemap.xml` | [elagoht/sitemap](https://github.com/Elagoht/collage-sitemap): every page but search, and every post with its update date | until a post changes |

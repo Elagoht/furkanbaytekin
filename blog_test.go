@@ -343,7 +343,7 @@ func TestLLMsTxt(t *testing.T) {
 	for _, want := range []string{
 		"# Furkan Baytekin\n\n> ",
 		"## Pages",
-		"- [About](https://furkanbaytekin.dev/about): ",
+		"- [About](https://furkanbaytekin.dev/about.md): ",
 		"## Blog posts",
 		"- [Hello World](https://furkanbaytekin.dev/blogs/hello-world.md): The first post.",
 		"- [RSS feed](https://furkanbaytekin.dev/rss)",

@@ -85,14 +85,14 @@ func TestUnknownPostAsMarkdownIsNotFound(t *testing.T) {
 	c.Get("/blogs/.md").WantStatus(http.StatusNotFound)
 }
 
-// An export writes each post's Markdown beside its page.
+// An export writes each post's Markdown, and the about page's, beside the page.
 func TestExportWritesPostMarkdown(t *testing.T) {
 	fakeCMS(t)
 	out := t.TempDir()
 	if err := staticBuild(newTestApp(t), out, false); err != nil {
 		t.Fatalf("staticBuild() = %v", err)
 	}
-	for _, file := range []string{"blogs/hello-world.md", "blogs/second.md", "blogs/hello-world/index.html"} {
+	for _, file := range []string{"blogs/hello-world.md", "blogs/second.md", "blogs/hello-world/index.html", "about.md"} {
 		body, err := os.ReadFile(filepath.Join(out, filepath.FromSlash(file)))
 		if err != nil {
 			t.Errorf("the export has no %s", file)
@@ -101,5 +101,63 @@ func TestExportWritesPostMarkdown(t *testing.T) {
 		if strings.HasSuffix(file, ".md") && !strings.HasPrefix(string(body), "---\ntitle: ") {
 			t.Errorf("%s does not begin with its front matter:\n%s", file, body)
 		}
+	}
+}
+
+// /about.md is /about as Markdown: front matter, the person's name, then each
+// section written by its type, with no trace of the separators between them.
+func TestAboutAsMarkdown(t *testing.T) {
+	c := client(t)
+	res := c.Get("/about.md").WantStatus(http.StatusOK)
+	if got := res.Header.Get("Content-Type"); got != "text/markdown; charset=utf-8" {
+		t.Errorf("Content-Type = %q", got)
+	}
+	if got := res.Header.Get("Link"); got != `<https://furkanbaytekin.dev/about>; rel="canonical"` {
+		t.Errorf("Link = %q", got)
+	}
+	head := `---
+title: "About - Furkan Baytekin"
+description: "Product-oriented developer who owns end-to-end systems from architecture to production."
+url: "https://furkanbaytekin.dev/about"
+author: "Furkan Baytekin"
+---
+
+# Furkan Baytekin
+
+## About
+
+![Furkan Baytekin](https://furkanbaytekin.dev/`
+	if !strings.HasPrefix(res.Body, head) {
+		t.Errorf("GET /about.md begins\n%s", res.Body[:min(len(res.Body), 600)])
+	}
+	for _, want := range []string{
+		"\n## Languages\n\nGo, TypeScript, JavaScript,",
+		"\n## Tech Stack\n\n- **Frontend**: Next.js, React.js,",
+		"\n## What I Know\n\n- System Design & Architecture\n",
+		"\n## Experience\n\n### Developer, UNOG\n\n*Sep 2026 - Present*\n\n- Developed open source",
+		"\n- Architected the whole platform (**Go backend**,",
+		"\n## Education\n\n- **Anadolu University**, Web Design and Development (A.D.), 2021 - 2023\n",
+	} {
+		if !strings.Contains(res.Body, want) {
+			t.Errorf("GET /about.md lacks %q", want)
+		}
+	}
+	if n := strings.Count(res.Body, "\n---\n"); n != 1 {
+		t.Errorf("GET /about.md has %d \"---\" lines past the first, want 1: the front matter's end", n)
+	}
+	if strings.Contains(res.Body, "\n\n\n") {
+		t.Error("GET /about.md has more than one blank line in a row")
+	}
+}
+
+// /about links its Markdown; a page without one links none.
+func TestSectionPagesLinkTheirMarkdown(t *testing.T) {
+	c := client(t)
+	link := `<link rel="alternate" type="text/markdown" href="/about.md">`
+	if !strings.Contains(c.Get("/about").Body, link) {
+		t.Error("/about does not link its Markdown")
+	}
+	if strings.Contains(c.Get("/").Body, `type="text/markdown"`) {
+		t.Error("/ links a Markdown it does not have")
 	}
 }

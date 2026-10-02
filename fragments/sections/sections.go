@@ -19,7 +19,14 @@ import (
 
 type builder func(name string, data json.RawMessage) *collage.Fragment
 
-var builders = map[string]builder{
+// kind is one section type: the fragment it renders as, and how it is written as
+// Markdown, for a page's .md.
+type kind struct {
+	fragment builder
+	markdown func(data json.RawMessage, w *Markdown) error
+}
+
+var kinds = map[string]kind{
 	"hero":       typed[heroView]("hero"),
 	"hobbies":    typed[hobbiesView]("hobbies"),
 	"stats":      typed[statsView]("stats"),
@@ -29,12 +36,17 @@ var builders = map[string]builder{
 	"expertise":  typed[expertiseView]("expertise"),
 	"experience": typed[experienceView]("experience"),
 	"education":  typed[educationView]("education"),
-	"separator":  separator,
+	// A line between sections on the page; between Markdown sections the
+	// headings are enough.
+	"separator": {fragment: separator, markdown: func(json.RawMessage, *Markdown) error { return nil }},
 }
 
+// view is a section's data. Each writes itself as Markdown, so a section type
+// cannot be added without its .md.
 type view interface {
 	heroView | hobbiesView | statsView |
 		profileView | chipsView | stackView | expertiseView | experienceView | educationView
+	markdown(w *Markdown)
 }
 
 // Resolver fills a slot with <page>.json's sections, read on every render.
@@ -62,18 +74,29 @@ func Check(store *content.Store, page string) error {
 func build(page string, sections []content.Section) ([]*collage.Fragment, error) {
 	fragments := make([]*collage.Fragment, 0, len(sections))
 	for i, section := range sections {
-		newFragment, ok := builders[section.Type]
+		k, ok := kinds[section.Type]
 		if !ok {
 			return nil, fmt.Errorf("%s: section %d has unknown type %q", page, i, section.Type)
 		}
-		fragments = append(fragments, newFragment(fmt.Sprintf("%s-%s-%d", page, section.Type, i), section.Data))
+		fragments = append(fragments, k.fragment(fmt.Sprintf("%s-%s-%d", page, section.Type, i), section.Data))
 	}
 	return fragments, nil
 }
 
-// typed is the builder of a section rendering fragments/sections/<kind>.html
-// with its data decoded as T.
-func typed[T view](kind string) builder {
+// typed is the kind of a section rendering fragments/sections/<template>.html
+// with its data decoded as T, and written as Markdown by T.
+func typed[T view](template string) kind {
+	return kind{fragment: fragmentOf[T](template), markdown: func(data json.RawMessage, w *Markdown) error {
+		var view T
+		if err := json.Unmarshal(data, &view); err != nil {
+			return fmt.Errorf("%s: %w", template, err)
+		}
+		view.markdown(w)
+		return nil
+	}}
+}
+
+func fragmentOf[T view](kind string) builder {
 	return func(name string, data json.RawMessage) *collage.Fragment {
 		return collage.NewFragment(
 			name,

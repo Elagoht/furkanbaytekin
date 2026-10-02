@@ -3,14 +3,12 @@ package fragments
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
-	"strconv"
-	"time"
 
 	"furkanbaytekin/data/blog"
+	"furkanbaytekin/frontmatter"
 
 	"github.com/Elagoht/collage/pkg/collage"
 )
@@ -45,70 +43,24 @@ func (b *Blog) Markdown(ctx context.Context, rc *collage.RenderContext) ([]byte,
 		tags = append(tags, tag.Name)
 	}
 
-	var out bytes.Buffer
-	out.WriteString("---\n")
-	field := func(name, value string) {
-		if value != "" {
-			fmt.Fprintf(&out, "%s: %s\n", name, value)
-		}
-	}
-	field("title", quote(post.Title))
-	if description != "" {
-		field("description", quote(description))
-	}
-	field("slug", quote(post.Slug))
-	field("url", quote(site.URL+"/blogs/"+url.PathEscape(post.Slug)))
-	if post.Author.Name != "" {
-		field("author", quote(post.Author.Name))
-	}
-	if post.Category.Name != "" {
-		field("category", quote(post.Category.Name))
-	}
-	field("tags", quoteList(tags))
-	field("published", timestamp(post.PublishedAt.Time))
-	field("updated", timestamp(post.UpdatedAt.Time))
-	if post.ReadTime > 0 {
-		field("readTime", strconv.Itoa(post.ReadTime))
-	}
+	var fm frontmatter.Writer
+	fm.String("title", post.Title)
+	fm.String("description", description)
+	fm.String("slug", post.Slug)
+	fm.String("url", site.URL+"/blogs/"+url.PathEscape(post.Slug))
+	fm.String("author", post.Author.Name)
+	fm.String("category", post.Category.Name)
+	fm.List("tags", tags)
+	fm.Time("published", post.PublishedAt.Time)
+	fm.Time("updated", post.UpdatedAt.Time)
+	fm.Int("readTime", post.ReadTime)
 	if post.CoverImage != "" {
-		field("cover", quote(b.Client.Asset(post.CoverImage)))
+		fm.String("cover", b.Client.Asset(post.CoverImage))
 	}
-	out.WriteString("---\n\n")
+	out := bytes.NewBuffer(fm.Bytes())
 	out.WriteString(body)
 	if body != "" && body[len(body)-1] != '\n' {
 		out.WriteByte('\n')
 	}
 	return out.Bytes(), []string{blog.TagPost(post.Slug), blog.TagPosts, blog.TagAuthors}, nil
-}
-
-// quote is s as a double-quoted YAML scalar. JSON's string escapes are a subset
-// of YAML's, so a title holding a colon, a quote or a newline stays one value.
-func quote(s string) string {
-	var b bytes.Buffer
-	enc := json.NewEncoder(&b)
-	enc.SetEscapeHTML(false)
-	_ = enc.Encode(s) // a string always encodes
-	return string(bytes.TrimSuffix(b.Bytes(), []byte("\n")))
-}
-
-// quoteList is a YAML flow sequence of quoted strings: ["go", "web"].
-func quoteList(items []string) string {
-	var b bytes.Buffer
-	b.WriteByte('[')
-	for i, item := range items {
-		if i > 0 {
-			b.WriteString(", ")
-		}
-		b.WriteString(quote(item))
-	}
-	b.WriteByte(']')
-	return b.String()
-}
-
-// timestamp is t as a YAML timestamp in UTC, or nothing for the zero time.
-func timestamp(t time.Time) string {
-	if t.IsZero() {
-		return ""
-	}
-	return t.UTC().Format(time.RFC3339)
 }

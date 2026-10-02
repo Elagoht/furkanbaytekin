@@ -36,6 +36,7 @@ func head(rc *collage.RenderContext, store *content.Store, name string) error {
 		return err
 	}
 	seo.Apply(rc, page.SEO)
+	hoistMarkdown(rc, name)
 	if page.Person == nil {
 		return nil
 	}
