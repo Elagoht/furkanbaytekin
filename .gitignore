@@ -13,6 +13,9 @@
 
 *.exe
 
-# Local environment, read by "collage dev". .env.example is the one to commit.
-/.env
-/.env.development
+# Local environment, read by "collage dev" and by the binary. .env.example is
+# the one to commit. Anywhere in the tree, not only at the root: a copy beside
+# the binary in bin/ is the same secrets.
+.env
+.env.development
+.env.*.local
