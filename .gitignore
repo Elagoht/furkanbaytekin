@@ -2,6 +2,7 @@
 # directory: "collage build -i" writes a Dockerfile and a systemd unit in there
 # too, and those are files you edit and commit.
 /bin/furkanbaytekin
+/bin/furkanbaytekin-*
 /bin/furkanbaytekin.exe
 
 # "collage export" output.

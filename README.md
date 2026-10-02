@@ -198,10 +198,19 @@ environment's secrets for the deployed binary.
 There is no `collage start`: this is a Go program, so production is a binary.
 
 ```
-collage build              # -> bin/furkanbaytekin, built for linux/amd64
+collage build -os linux -arch amd64 -o bin/furkanbaytekin-linux-amd64   # or -arch arm64
 collage build -i           # also offers a Dockerfile and a systemd unit in bin/
-HOST=0.0.0.0 PORT=8080 COLLAGE_CSRF_KEY=... ./bin/furkanbaytekin
+HOST=127.0.0.1 PORT=8080 COLLAGE_CSRF_KEY=... ./bin/furkanbaytekin-linux-amd64
 ```
+
+`collage build` alone builds for the machine it runs on, so a binary built on a
+Mac does not run on a Linux server: name the target. `HOST=127.0.0.1` when a
+reverse proxy on the same machine (Caddy, a Cloudflare tunnel) is what the
+public reaches; `0.0.0.0` only when the proxy is elsewhere, as in a container.
+The binary reads `.env` from its working directory, and a variable already set
+in the environment wins. `CACHE_DIR` has to outlive a restart and a deploy: a
+cached page names share cards and images the next process must still be able
+to draw.
 
 Templates and static files are embedded, so the binary is the whole site —
 nothing to copy next to it. It drains in-flight requests on `SIGTERM`, answers
