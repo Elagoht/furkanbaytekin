@@ -70,6 +70,11 @@ one fragment from `fragments/sections/`, with its template in
 
 The not-found page's words are `site.json`'s `notFound`.
 
+The previous site served its icons, its manifest and `/rss.xml` at the root.
+Those addresses answer `301` to where this one serves them
+(`pages/landing/home.go`'s `legacyAddresses`): browsers ask for `/favicon.ico`
+whatever a page links, and a feed reader keeps the address it subscribed to.
+
 `/about.md` is `/about` as Markdown, for a reader that wants the text alone: its
 `seo` title and description and its address as front matter, then each section
 written by its type (`fragments/sections/markdown.go`) — a list for chips and

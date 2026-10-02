@@ -272,3 +272,25 @@ func TestLinksResolve(t *testing.T) {
 		t.Errorf("broken links: %v", findings)
 	}
 }
+
+// The previous site's addresses for its own files are sent on for good to where
+// this one serves them, and each lands on a file that is there.
+func TestPreviousAddressesRedirect(t *testing.T) {
+	c := client(t)
+	for from, to := range map[string]string{
+		"/favicon.ico":                "/static/icons/favicon.ico",
+		"/favicon-32x32.png":          "/static/icons/favicon-32x32.png",
+		"/apple-touch-icon.png":       "/static/icons/apple-touch-icon.png",
+		"/android-chrome-192x192.png": "/static/icons/android-chrome-192x192.png",
+		"/android-chrome-512x512.png": "/static/icons/android-chrome-512x512.png",
+		"/manifest.json":              "/static/manifest.webmanifest",
+		"/rss.xml":                    "/rss",
+	} {
+		res := c.Get(from)
+		if res.Status != http.StatusMovedPermanently || res.Header.Get("Location") != to {
+			t.Errorf("GET %s = %d to %q, want 301 to %s", from, res.Status, res.Header.Get("Location"), to)
+			continue
+		}
+		c.Get(to).WantStatus(http.StatusOK)
+	}
+}
