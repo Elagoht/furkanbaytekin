@@ -23,7 +23,7 @@
       "type": "profile",
       "data": {
         "image": {
-          "src": "https://furkanbaytekin.dev/android-chrome-512x512.png",
+          "src": "/static/icons/android-chrome-512x512.png",
           "alt": "Furkan Baytekin",
           "width": 240,
           "height": 240

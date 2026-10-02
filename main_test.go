@@ -2,6 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"image"
+	_ "image/png"
+
+	_ "golang.org/x/image/webp" // the avatar may be served as WebP
 	"net/http"
 	"regexp"
 	"strconv"
@@ -182,7 +186,8 @@ func TestHomeHasStructuredData(t *testing.T) {
 // opti-image: the avatar declares its size, so its src is replaced with a copy
 // this server produces and serves under /_image/.
 func TestAvatarIsServedByThisSite(t *testing.T) {
-	body := client(t).Get("/").Body
+	c := client(t)
+	body := c.Get("/").Body
 
 	avatar := regexp.MustCompile(`<img class="hero-avatar" src="([^"]+)"`).FindStringSubmatch(body)
 	if avatar == nil {
@@ -190,6 +195,16 @@ func TestAvatarIsServedByThisSite(t *testing.T) {
 	}
 	if !strings.HasPrefix(avatar[1], "/_image/") {
 		t.Errorf("avatar src = %q, want a /_image/ URL", avatar[1])
+	}
+	// Resized from the static file, with no request to the site's public
+	// address: the 512px icon, at the 256px the page declares.
+	res := c.Get(avatar[1]).WantStatus(http.StatusOK)
+	img, _, err := image.DecodeConfig(strings.NewReader(res.Body))
+	if err != nil {
+		t.Fatalf("GET %s: %v", avatar[1], err)
+	}
+	if img.Width != 256 || img.Height != 256 {
+		t.Errorf("the avatar is %d×%d, want 256×256", img.Width, img.Height)
 	}
 }
 

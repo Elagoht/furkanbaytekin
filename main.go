@@ -144,10 +144,11 @@ func newApp(devMode bool, port int) (*collage.App, error) {
 		return nil, err
 	}
 
-	// opti-image fetches from this site and from the CMS, and from nowhere
-	// else. Both are named where they are configured already, so the list
-	// cannot drift from them; plugins-config.json holds the rest.
-	origins, err := imageOrigins(site.URL, client.Origin())
+	// opti-image fetches from the CMS, and from nowhere else: the site's own
+	// images it reads from the static files (Files, below), with no request to
+	// itself. The CMS is named where it is configured already, so the list
+	// cannot drift from it; plugins-config.json holds the rest.
+	origins, err := imageOrigins(client.Origin())
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +205,11 @@ func newApp(devMode bool, port int) (*collage.App, error) {
 		Plugins: []collage.Plugin{
 			optiimage.NewWith(optiimage.Config{
 				AllowedOrigins: origins,
-				CacheDir:       filepath.Join(cacheDir, "opti-image"),
+				// "/static/avatar.png" is resized from the file /static/
+				// serves, so a test or an export needs no network, and the
+				// site does not depend on its own public address being up.
+				Files:    map[string]fs.FS{"/static/": assets},
+				CacheDir: filepath.Join(cacheDir, "opti-image"),
 			}),
 			jsonld.New(),
 			minimizer.New(),

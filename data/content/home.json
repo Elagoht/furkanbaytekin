@@ -9,7 +9,7 @@
       "type": "hero",
       "data": {
         "avatar": {
-          "src": "https://furkanbaytekin.dev/android-chrome-512x512.png",
+          "src": "/static/icons/android-chrome-512x512.png",
           "alt": "Furkan Baytekin",
           "width": 256,
           "height": 256

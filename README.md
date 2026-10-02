@@ -163,11 +163,14 @@ These pages need the server, so `collage export` skips them.
 
 Three plugins are installed, configured in `plugins-config.json`:
 
-- **opti-image** fetches images with a declared `width` and `height` from the
-  site (`site.json`'s `url`) and the CMS (`BLOG_API_URL`) — the list is built in
-  `main.go` from those two, not written in the config — resizes them, with
-  `"webp": "auto"`: PNG sources become WebP, photographs JPEG,, and serves them from `/_image/`
-  (`collage export` writes them into `dist/_image/`).
+- **opti-image** resizes images with a declared `width` and `height`: the
+  site's own, under `/static/`, read from the static files with no request made
+  (`Files` in `main.go`), and the CMS's (`BLOG_API_URL`), fetched — the only
+  origin it fetches from, built in `main.go`, not written in the config. With
+  `"webp": "auto"` PNG sources become WebP and photographs JPEG, served from
+  `/_image/` (`collage export` writes them into `dist/_image/`). A page's own
+  image is written as a path — `"src": "/static/icons/…"` — not as the site's
+  address, which the site would have to be up at to fetch from itself.
 - **jsonld** adds a `WebSite` node; the home page emits a `Person`.
 - **minimizer** strips whitespace from pages and assets.
 
